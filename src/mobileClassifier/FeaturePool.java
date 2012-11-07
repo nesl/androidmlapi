@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class FeaturePool {
+    /**
+     * TO-DO: feature pool requires synchronization between server and client
+     * Once client update feature set, need to retrain
+     */
     private ArrayList<Feature> m_features = new ArrayList<Feature>();
     private HashMap<String, Integer> m_nameMap = new HashMap<String, Integer>();
     
