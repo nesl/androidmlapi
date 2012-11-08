@@ -28,6 +28,7 @@ public class XDROutputStream extends DataOutputStream implements XDRDataOutput {
     }
 
     public void writeString(String s) throws IOException {
+       // System.out.println(s);
         writeInt(s.length());
         byte[] ascii = s.getBytes();
         write(ascii);
