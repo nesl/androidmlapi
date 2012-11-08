@@ -1,12 +1,12 @@
 package edu.ucla.nesl.mobileClassifier;
 
 import java.util.ArrayList;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import edu.ucla.nesl.xdr.XDRSerializable;
 
-public abstract class Classifier {
+public abstract class Classifier implements XDRSerializable{
     // Currently only support multiple in, single out
     protected ArrayList<Feature> m_inputs = null;
     protected Feature m_output = null;

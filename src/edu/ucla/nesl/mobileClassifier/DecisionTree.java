@@ -60,7 +60,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         }
     }
 
-    class TreeNode {
+    class TreeNode implements XDRSerializable{
         /** ID for this node */
         private int m_ID;
 
@@ -76,6 +76,13 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         private Spliter m_split;
 
         private ArrayList<TreeNode> m_childNodes = new ArrayList<TreeNode>();
+        
+        /** Temp array to store children IDs, not exported to XDR */
+        private int[] childList;
+        
+        public TreeNode() {
+            
+        }
 
         public TreeNode(int id) {
             this.m_ID = id;
@@ -147,6 +154,56 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
         public int getID() {
             return m_ID;
+        }
+
+        @Override
+        public void writeXDR(XDRDataOutput output) throws IOException {
+         // Write the id of the node
+            output.writeInt(this.getID());
+
+            // Write the type of the node
+            output.writeShort(this.type);
+
+            // Write the score of the node
+            output.writeInt(this.type);
+            output.writeDouble(this.m_scoreNumeric);
+
+            // Write the id of all children
+            // first write number of children
+            output.writeInt(this.m_childNodes.size());
+            for (TreeNode child : this.m_childNodes) {
+                output.writeInt(child.m_ID);
+            }
+
+            // Write the split information of this node to XDR
+            this.m_split.writeXDR(output);
+            
+        }
+
+        @Override
+        public void readXDR(XDRDataInput input) throws IOException {
+            // Read the node
+            int id = input.readInt();
+            this.m_ID = id;
+
+            int type = input.readShort();
+            this.type = type;
+
+            int score1 = input.readInt();
+            this.m_scoreIndex = score1;
+
+            double score2 = input.readDouble();
+            this.m_scoreNumeric = score2;
+
+            int nChild = input.readInt();
+            this.childList = new int[nChild];
+            for (int i = 0; i < nChild; i++) {
+                childList[i] = input.readInt();
+            }
+
+            Spliter spliter = new Spliter();
+            spliter.readXDR(input);
+            this.m_split = spliter;
         }
     }
 
@@ -239,25 +296,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         output.writeInt(nodeList.size());
 
         for (TreeNode node : nodeList) {
-            // Write the id of the node
-            output.writeInt(node.getID());
-
-            // Write the type of the node
-            output.writeShort(node.type);
-
-            // Write the score of the node
-            output.writeInt(node.type);
-            output.writeDouble(node.m_scoreNumeric);
-
-            // Write the id of all children
-            // first write number of children
-            output.writeInt(node.m_childNodes.size());
-            for (TreeNode child : node.m_childNodes) {
-                output.writeInt(child.m_ID);
-            }
-
-            // Write the split information of this node to XDR
-            node.m_split.writeXDR(output);
+            node.writeXDR(output);
         }
         output.close();
     }
@@ -269,52 +308,29 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         if (classifier.equals("TREE")) {
             // read number of nodes
             int n = input.readInt();
-            System.out.println(n);
+            // System.out.println(n);
             // map the IDs to each node
             ArrayList<TreeNode> list = new ArrayList<TreeNode>();
             HashMap<Integer, TreeNode> map = new HashMap<Integer, TreeNode>();
-            int[][] childList = new int[n][n];
-            int[] childLength = new int[n];
             // read all nodes
             for (int i = 0; i < n; i++) {
-                // Read the node
-                int id = input.readInt();
-                TreeNode node = new TreeNode(id);
-                System.out.println(id);
-
-                int type = input.readShort();
-                node.type = type;
-
-                int score1 = input.readInt();
-                node.m_scoreIndex = score1;
-
-                double score2 = input.readDouble();
-                node.m_scoreNumeric = score2;
-
-                int nChild = input.readInt();
-                childLength[i] = nChild;
-                for (int j = 0; j < nChild; j++) {
-                    childList[i][j] = input.readInt();
-                }
-
-                Spliter spliter = new Spliter();
-                spliter.readXDR(input);
-                node.m_split = spliter;
-
-                map.put(id, node);
+                TreeNode node = new TreeNode();
+                node.readXDR(input);
+                map.put(node.m_ID, node);
                 list.add(node);
             }
 
             // build the hierarchy of the tree
             m_root = list.get(0);
             for (int i = 0; i < n; i++) {
-                TreeNode node = list.get(0);
-                for (int j = 0; j < childLength[i]; j++) {
-                    System.out.print(childList[i][j] + " ");
-                    node.m_childNodes.add(map.get(childList[i][j]));
+                TreeNode node = list.get(i);
+                int[] children = node.childList;
+                for (int j = 0; j < children.length; j++) {
+                    //System.out.print(children[j] + " ");
+                    node.m_childNodes.add(map.get(children[j]));
 
                 }
-                System.out.println();
+                //System.out.println();
             }
         }
     }
