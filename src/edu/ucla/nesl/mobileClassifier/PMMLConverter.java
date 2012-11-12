@@ -1,26 +1,17 @@
 package edu.ucla.nesl.mobileClassifier;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import weka.classifiers.pmml.consumer.GeneralRegression;
-import weka.classifiers.pmml.consumer.NeuralNetwork;
-import weka.classifiers.pmml.consumer.Regression;
-import weka.classifiers.pmml.consumer.RuleSetModel;
-import weka.classifiers.pmml.consumer.SupportVectorMachineModel;
-import weka.classifiers.pmml.consumer.TreeModel;
-import weka.core.Instances;
-import weka.core.pmml.MiningSchema;
-import weka.core.pmml.PMMLModel;
-import weka.core.pmml.PMMLFactory.ModelType;
+import edu.ucla.nesl.mobileClassifier.Feature.OPType;
 
 public class PMMLConverter {
 
@@ -181,6 +172,55 @@ public class PMMLConverter {
         
         return true;
     }
+    
+    private void updateFeatureList(Document doc) throws Exception {
+        NodeList dataDictionary = doc.getElementsByTagName("DataField");
+        for (int i = 0; i < dataDictionary.getLength(); i++) {
+          Node dataField = dataDictionary.item(i);
+          if (dataField.getNodeType() == Node.ELEMENT_NODE) {
+              Element dataFieldEl = (Element)dataField;
+              String name = dataFieldEl.getAttribute("name");
+              String type = dataFieldEl.getAttribute("optype");
+              if (name != null && type != null) {
+                  Feature f = new Feature();
+                  f.GUID = UUID.randomUUID().getLeastSignificantBits();
+                  f.name = name;
+                  
+                  if (type.equals("continuous")) {
+                        f.opType = OPType.REAL;
+                  } else if (type.equals("categorical") || type.equals("ordinal")) {
+                        f.opType = OPType.NOMINAL;
+                        
+                        NodeList valueList = dataFieldEl.getElementsByTagName("Value");
+                        if (valueList == null || valueList.getLength() == 0) 
+                            throw new Exception("No value list for categorical type.");
+
+                        // add the values (if defined as "valid")
+                        ArrayList<String> valueVector = new ArrayList<String>();
+                        for (int j = 0; j < valueList.getLength(); j++) {
+                            Node val = valueList.item(j);
+                            if (val.getNodeType() == Node.ELEMENT_NODE) {
+                              // property is optional (default value is "valid")
+                              String property = ((Element)val).getAttribute("property");
+                              if (property == null || property.length() == 0 || property.equals("valid")) {
+                                  String value = ((Element)val).getAttribute("value");
+                                  valueVector.add(value);
+                              } else {
+                                // Just ignore invalid or missing value definitions for now...
+                                // TO-DO: implement Value meta data with missing/invalid value defs.
+                              }
+                            }
+                        }
+                        f.dataSet = valueVector;
+                  } else {
+                      throw new Exception("Can't handle " + type + "attributes.");
+                  }
+                  
+                  m_featurePool.add(f);
+                }
+            }
+        }
+    }
         
     public Classifier getModelFromStream(InputStream stream) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -194,7 +234,7 @@ public class PMMLConverter {
         }
         
         // Get DataDictionary (feature list)
-        getFeatureList();
+        updateFeatureList(doc);    // should be confirm data list????
         
         // Get model type
         ModelType modelType = getModelType(doc);
