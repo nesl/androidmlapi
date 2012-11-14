@@ -1,9 +1,14 @@
 package edu.ucla.nesl.mobileClassifier;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FeaturePool {
+import edu.ucla.nesl.xdr.XDRDataInput;
+import edu.ucla.nesl.xdr.XDRDataOutput;
+import edu.ucla.nesl.xdr.XDRSerializable;
+
+public class FeaturePool implements XDRSerializable{
     /**
      * TODO: feature pool requires synchronization between server and client
      * Once client update feature set, need to retrain
@@ -64,5 +69,17 @@ public class FeaturePool {
             return -1;
         else
             return index.intValue();
+    }
+
+    @Override
+    public void writeXDR(XDRDataOutput out) throws IOException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void readXDR(XDRDataInput in) throws IOException {
+        // TODO Auto-generated method stub
+        
     }
 }
