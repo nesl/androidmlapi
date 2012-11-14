@@ -2,8 +2,6 @@ package edu.ucla.nesl.mobileClassifier;
 
 import java.util.ArrayList;
 
-import edu.ucla.nesl.mobileClassifier.DecisionTree.TreeNode;
-
 
 public class Feature {
     public enum OPType {
@@ -47,6 +45,7 @@ public class Feature {
         */
     }
     
+    public long GUID;
     public String name;
     public OPType opType;
     public DataType dataType;

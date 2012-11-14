@@ -5,6 +5,7 @@ import java.util.*;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import edu.ucla.nesl.mobileClassifier.Feature.OPType;
 import edu.ucla.nesl.xdr.XDRDataInput;
 import edu.ucla.nesl.xdr.XDRDataOutput;
@@ -59,13 +60,27 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             }
         }
     }
+    
+    // helper class to build split
+    protected class Predicate {
+        public String type;
+        public long featureGUID;
+        public String operator;
+        public double value;
+        public Array valueSet;
+        
+        public Predicate(String typename) {
+            type = typename;
+        }
+    }
 
     class TreeNode implements XDRSerializable{
         /** ID for this node */
-        private int m_ID;
+        private int m_ID = -1;
+        private String m_IDString = null;   // No Export
 
         /** Type of this node: NOMINAL or REAL */
-        private int type;
+        //private int type;
 
         /** The index of this predicted value (if class is nominal) */
         private int m_scoreIndex = -1;
@@ -73,7 +88,9 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         /** The score as a number (if target is numeric) */
         private double m_scoreNumeric = Double.NaN;
 
-        private Spliter m_split;
+        private Spliter m_split = null;
+        
+        private Predicate m_predicate = null;   // No Export
 
         private ArrayList<TreeNode> m_childNodes = new ArrayList<TreeNode>();
         
@@ -93,7 +110,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             // get the ID
             String id = nodeE.getAttribute("id");
             if (id != null && id.length() > 0) {
-                m_ID = Integer.parseInt(id);
+                m_ID = Integer.parseInt(id);    //!!!!
             }
 
             // get the score for this node
@@ -116,6 +133,34 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                     }
                 }
             }
+            
+            // Get predicate
+            NodeList children = nodeE.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    String tagName = ((Element)child).getTagName();
+                    if (tagName.equals("True")) {
+                        m_predicate = new Predicate("True");
+                        break;
+                    } else if (tagName.equals("False")) {
+                        m_predicate = new Predicate("False");
+                        break;
+                    } else if (tagName.equals("SimplePredicate")) {
+                        m_predicate = getSimplePredicate((Element)child, parent.m_inputs);
+                        break;
+                    } else if (tagName.equals("SimpleSetPredicate")) {
+                        m_predicate = getSimpleSetPredicate((Element)child, parent.m_inputs);
+                        break;
+                    } else if (tagName.equals("CompoundPredicate")) {
+                        throw new Exception("CompoundPredicate is not supported!");
+                    } 
+                }
+            }
+
+            if (m_predicate == null) {
+              throw new Exception("unknown or missing predicate type in node");
+            }
 
             // Now get the child Node(s)
             getChildNodes(nodeE, parent);
@@ -134,6 +179,79 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
             // Get the Predicates of childs, aggregate
             // m_predicate = Predicate.getPredicate(nodeE, miningSchema);
+        }
+        
+        public Predicate getSimplePredicate(Element simpleP, ArrayList<Feature> featureList) 
+                throws Exception {
+            Predicate predicate = new Predicate("SimplePredicate");
+            
+            // get the field name and set up the index
+            String fieldS = simpleP.getAttribute("field");
+            if (!featureList.contains(fieldS)) {
+              throw new Exception("[SimplePredicate] unable to find field " + fieldS
+                  + " in the incoming instance structure!");
+            }
+            
+            for (Feature f : featureList) {
+                if (f.name.equals(fieldS)) {
+                    predicate.featureGUID = f.GUID;
+                    break;
+                  }
+            }
+            
+            // get the operator
+            String oppS = simpleP.getAttribute("operator");
+            predicate.operator = oppS;
+
+            // get value: assume SimplePredicate = numberic value!!!!
+            String valueS = simpleP.getAttribute("value");
+            predicate.value = Double.parseDouble(valueS);
+            
+            return predicate;
+        }
+        
+        public Predicate getSimpleSetPredicate(Element setP, ArrayList<Feature> featureList) 
+                throws Exception {
+            Predicate predicate = new Predicate("SimplePredicate");
+            
+            // get the field name and set up the index
+            String fieldS = setP.getAttribute("field");
+            if (!featureList.contains(fieldS)) {
+              throw new Exception("[SimplePredicate] unable to find field " + fieldS
+                  + " in the incoming instance structure!");
+            }
+            
+            for (Feature f : featureList) {
+                if (f.name.equals(fieldS)) {
+                    predicate.featureGUID = f.GUID;
+                    break;
+                  }
+            }
+            
+            // get the operator
+            String oppS = setP.getAttribute("operator");
+            predicate.operator = oppS;
+
+            // get value: assume SimpleSetPredicate = nominal value!!!!
+            // need to scan the children looking for an array type
+            NodeList children = setP.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    if (Array.isArray((Element)child)) {
+                        // found the array
+                        predicate.valueSet = Array.create((Element)child);
+                        break;
+                      }
+                }
+            }
+
+            if (predicate.valueSet == null) {
+              throw new Exception("[SimpleSetPredictate] couldn't find an " +
+              "array containing the set values!");
+            }
+
+            return predicate;
         }
 
         private void getChildNodes(Element nodeE, DecisionTree parent)
