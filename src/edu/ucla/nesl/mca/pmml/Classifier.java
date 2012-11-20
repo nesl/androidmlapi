@@ -1,4 +1,4 @@
-package edu.ucla.nesl.mca.classifier;
+package edu.ucla.nesl.mca.pmml;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,8 +14,39 @@ import edu.ucla.nesl.mca.xdr.XDRSerializable;
 
 public abstract class Classifier implements XDRSerializable{
     // Currently only support multiple in, single out
-    protected FeaturePool m_inputs = null;
+    protected ArrayList<Feature> m_inputs = null;
     protected Feature m_output = null;
+    
+    public void getMiningSchema(Element model, FeaturePool featurePool) 
+            throws Exception {
+        NodeList fieldList = model.getElementsByTagName("MiningField");
+        for (int i = 0; i < fieldList.getLength(); i++) {
+            Node miningField = fieldList.item(i);
+            if (miningField.getNodeType() == Node.ELEMENT_NODE) {
+                Element miningFieldEl = (Element)miningField;
+                String fieldName = miningFieldEl.getAttribute("name");
+                String usage = miningFieldEl.getAttribute("usageType");
+
+                if (usage.compareTo("active") == 0 ||
+                    usage.compareTo("predicted") == 0) {
+                    Feature feature;
+                    try {
+                        feature = featurePool.get(fieldName);
+                    } catch (IllegalArgumentException e) {
+                        throw new Exception("Can't find mining field: " + fieldName 
+                                + " in the data dictionary.");
+                    }
+                    
+                    if (usage.compareTo("active") == 0) {
+                        m_inputs.add(feature);
+                    }
+                    else { // predicted
+                        m_output = feature;
+                    }
+                }
+            }
+        }
+    }
     
     public static String getJSONModelType(String jsonString) throws IOException {
         try {
@@ -50,18 +81,6 @@ public abstract class Classifier implements XDRSerializable{
         } catch (JSONException e) {
             throw new IOException(e);
         }
-    }
-    
-    public Object evaluate() {
-        return null;
-    }
-    
-    public FeaturePool getInputs() {
-        return m_inputs;
-    }
-    
-    public Feature getOutput() {
-        return m_output;
     }
 
     protected abstract void getModel(JSONObject modelObj) throws JSONException;

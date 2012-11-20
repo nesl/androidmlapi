@@ -12,21 +12,21 @@ public class FeaturePool implements XDRSerializable{
      * TODO: feature pool requires synchronization between server and client
      * Once client update feature set, need to retrain
      */
-    private HashMap<String, Long> m_nameMap = new HashMap<String, Long>();
-    private HashMap<Long, Feature> m_features = new HashMap<Long, Feature>();
+    private HashMap<String, Integer> m_nameMap = new HashMap<String, Integer>();
+    private HashMap<Integer, Feature> m_features = new HashMap<Integer, Feature>();
     
     // Delete Feature may cause nameMap index error, not implemented
     
-    public Feature get(Long guid) {
-        return m_features.get(guid);
+    public Feature get(Integer id) {
+        return m_features.get(id);
     }
     
     public Feature get(String featureName) {
-        Long guid = getFeatureGUID(featureName);
-        if (guid == null)
+        Integer id = getFeatureID(featureName);
+        if (id == null)
             return null;
         else
-            return get(guid);
+            return get(id);
     }
     
     public int size() {
@@ -37,51 +37,51 @@ public class FeaturePool implements XDRSerializable{
         // m_nameMap and m_features should be in sync so no need to check both
         return m_nameMap.containsKey(featureName);
         /*
-        Long guid = getFeatureGUID(featureName);
-        if (guid == null)
+        Integer id = getFeatureID(featureName);
+        if (id == null)
             return false;
         else
-            return contains(guid);
+            return contains(id);
          */
     }
 
-    public boolean contains(Long guid) {
-        return m_features.containsKey(guid);
+    public boolean contains(Integer id) {
+        return m_features.containsKey(id);
     }
     
     public boolean contains(Feature f) {
-        return contains(f.GUID);
+        return contains(f.id);
     }
 
     /**
      * Add newFeature to the pool
      *
      * @param newFeature the Feature to be added
-     * @return the GUID of the feature, if the feature already exists
-     *         return its GUID if both same, return null if different
+     * @return the id of the feature, if the feature already exists
+     *         return its id if both same, return null if different
      * @throws Exception if the model type is unsupported/unknown
      */
     // 
     // Return the index on success or exists
-    public Long add(Feature newFeature) {
-        Long guid = getFeatureGUID(newFeature.name);
+    public Integer add(Feature newFeature) {
+        Integer id = getFeatureID(newFeature.name);
         
-        if (guid == null) {
-            m_features.put(newFeature.GUID, newFeature);
-            m_nameMap.put(newFeature.name, newFeature.GUID);
-            return newFeature.GUID;
+        if (id == null) {
+            m_features.put(newFeature.id, newFeature);
+            m_nameMap.put(newFeature.name, newFeature.id);
+            return newFeature.id;
         }
         else {
-            Feature oldFeature = get(guid);
+            Feature oldFeature = get(id);
             if (newFeature == oldFeature)
-                return guid;
+                return id;
             else
                 return null;
         }
 
     }
     
-    public Long getFeatureGUID(String featureName) {
+    public Integer getFeatureID(String featureName) {
         return m_nameMap.get(featureName);
     }
 

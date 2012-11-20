@@ -2,12 +2,9 @@ package edu.ucla.nesl.mca.classifier;
 
 import java.io.*;
 import java.util.*;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.json.*;
 
 import edu.ucla.nesl.mca.feature.Feature;
-import edu.ucla.nesl.mca.feature.FeaturePool;
 import edu.ucla.nesl.mca.feature.Feature.OPType;
 import edu.ucla.nesl.mca.xdr.XDRDataInput;
 import edu.ucla.nesl.mca.xdr.XDRDataOutput;
@@ -16,268 +13,121 @@ import edu.ucla.nesl.mca.xdr.XDRSerializable;
 
 public class DecisionTree extends Classifier implements XDRSerializable {
 
-    protected class Spliter implements XDRSerializable {
-        public int featureID;
-        public double threshold = Double.NaN;
-        public int[] indexSet = null;
-
-        public Spliter() {
-
-        }
-
-        public Spliter(int feature) {
-            this.featureID = feature;
-        }
-
-        @Override
-        public void writeXDR(XDRDataOutput output) throws IOException {
-            // Write feature id
-            output.writeInt(featureID);
-
-            // Write threshold value (for numerical)
-            output.writeDouble(threshold);
-
-            // Write set memberships (for nominal)
-            // first write the size
-            if (indexSet != null) {
-                output.writeInt(indexSet.length);
-                for (int index : indexSet) {
-                    output.writeInt(index);
-                }
-            } else {
-                output.writeInt(0);
-            }
-        }
-
-        @Override
-        public void readXDR(XDRDataInput input) throws IOException {
-            this.featureID = input.readInt();
-            this.threshold = input.readDouble();
-            int n = input.readInt();
-            if (n > 0) {
-                indexSet = new int[n];
-                for (int i = 0; i < n; i++) {
-                    indexSet[i] = input.readInt();
-                }
-            }
-        }
+    protected enum RealOperator {
+          LESSTHAN("<")  {
+              boolean evaluate(double featureValue, double threshold) {
+                  return featureValue < threshold;
+              }
+          },
+          LESSOREQUAL("<=") {
+              boolean evaluate(double featureValue, double threshold) {
+                  return featureValue <= threshold;
+              }
+          },
+          GREATERTHAN(">") {
+              boolean evaluate(double featureValue, double threshold) {
+                  return featureValue > threshold;
+              }
+          },
+          GREATEROREQUAL(">=") {
+              boolean evaluate(double featureValue, double threshold) {
+                  return featureValue >= threshold;
+              }
+          };
+          
+          abstract boolean evaluate(double featureValue, double threshold);
+          
+          private final String m_stringVal;
+          
+          RealOperator(String name) {
+              m_stringVal = name;
+          }
+                
+          public String toString() {
+              return m_stringVal;
+          }
     }
-    
-    // helper class to build split
-    protected class Predicate {
-        public String type;
-        public long featureGUID;
-        public String operator;
-        public double value;
-        public Array valueSet;
+
+    protected class TreeNode implements XDRSerializable {
         
-        public Predicate(String typename) {
-            type = typename;
-        }
-    }
-
-    class TreeNode implements XDRSerializable{
         /** ID for this node */
-        private int m_ID = -1;
- //       private String m_IDString = null;   // No Export
+        private int m_id = -1;
 
         /** Type of this node: NOMINAL or REAL */
-        //private int type;
-
-        /** The index of this predicted value (if class is nominal) */
-        private int m_scoreIndex = -1;
-
-        /** The score as a number (if target is numeric) */
-        private double m_scoreNumeric = Double.NaN;
-
-        private Spliter m_split = null;
+        private Feature m_feature = null;
         
-        private Predicate m_predicate = null;   // No Export
+        /** Type of this node's feature: NOMINAL or REAL */
+        private OPType m_type = null;
+        
+        /** Operator if type is REAL */
+        private RealOperator m_realOp = null;
+        
+        /** Threshold if type is REAL */
+        private double m_realThes = Double.NaN;
 
+        /** Type of result: NOMINAL or REAL */
+        private OPType m_resultType = null;
+
+        /** result if resultType is REAL */
+        private double m_realResult = Double.NaN;
+
+        /** Child nodes of this node */
         private ArrayList<TreeNode> m_childNodes = new ArrayList<TreeNode>();
         
         /** Temp array to store children IDs, not exported to XDR */
         private int[] childList;
+        private int childCount;
         
         public TreeNode() {
+            // Used for readXDR
+        }
+
+        public TreeNode(JSONObject nodeObj, DecisionTree parent) throws JSONException {
+            m_id = nodeObj.getInt("ID");
             
-        }
-
-        public TreeNode(int id) {
-            this.m_ID = id;
-            this.m_childNodes = new ArrayList<TreeNode>();
-        }
-
-        protected TreeNode(Element nodeE, DecisionTree parent) throws Exception {
-            // get the ID
-            String id = nodeE.getAttribute("id");
-            if (id != null && id.length() > 0) {
-                m_ID = Integer.parseInt(id);    //!!!!
-            }
-
-            // get the score for this node
-            String scoreS = nodeE.getAttribute("score");
-            if (scoreS != null && scoreS.length() > 0) {
-                if (parent.m_output.opType == OPType.NOMINAL) {
-                    m_scoreIndex = parent.m_output.dataSet.indexOf(scoreS);
-                    if (m_scoreIndex < 0) {
-                        throw new Exception(
-                                "Can't find match for predicted value "
-                                        + scoreS + " in output feature!");
+            if (nodeObj.has("Feature")) {
+                String featureName = nodeObj.getString("Feature");
+                m_feature = parent.getInputs().get(featureName);
+                m_type = m_feature.opType;
+                if (m_type == OPType.REAL) {
+                    String op = nodeObj.getString("Operation");
+                    for (RealOperator o : RealOperator.values()) {
+                        if (o.toString().equals(op)) {
+                            m_realOp = o;
+                            break;
+                          }
                     }
-                } else {
-                    try {
-                        m_scoreNumeric = Double.parseDouble(scoreS);
-                    } catch (NumberFormatException e) {
-                        throw new Exception(
-                                "Class is real but unable to parse score "
-                                        + scoreS + " as a number!");
-                    }
+                    m_realThes = nodeObj.getDouble("Value");
                 }
-            }
-            
-            // Get predicate
-            NodeList children = nodeE.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    String tagName = ((Element)child).getTagName();
-                    if (tagName.equals("True")) {
-                        m_predicate = new Predicate("True");
-                        break;
-                    } else if (tagName.equals("False")) {
-                        m_predicate = new Predicate("False");
-                        break;
-                    } else if (tagName.equals("SimplePredicate")) {
-                        m_predicate = getSimplePredicate((Element)child, parent.m_inputs);
-                        break;
-                    } else if (tagName.equals("SimpleSetPredicate")) {
-                        m_predicate = getSimpleSetPredicate((Element)child, parent.m_inputs);
-                        break;
-                    } else if (tagName.equals("CompoundPredicate")) {
-                        throw new Exception("CompoundPredicate is not supported!");
-                    } 
+                JSONArray childNodeList = nodeObj.getJSONArray("Nodes");
+                childCount = childNodeList.length();
+                childList = new int[childCount];
+                for (int i = 0; i < childCount; i++) {
+                    childList[i] = childNodeList.getInt(i);
                 }
-            }
-
-            if (m_predicate == null) {
-              throw new Exception("unknown or missing predicate type in node");
-            }
-
-            // Now get the child Node(s)
-            getChildNodes(nodeE, parent);
-
-            // Get the default child (if applicable)
-            String defaultC = nodeE.getAttribute("defaultChild");
-            if (defaultC != null && defaultC.length() > 0) {
-                for (TreeNode t : m_childNodes) {
-                    if (t.getID() == Integer.parseInt(defaultC)) {
-                        TreeNode m_defaultChild = t;
-                        m_defaultChild.getID();
-                        break;
-                    }
+            } else if (nodeObj.has("Result")) {
+                m_resultType = parent.getOutput().opType;
+                if (m_resultType == OPType.REAL) {
+                    m_realResult = nodeObj.getDouble("Result");
                 }
-            }
-
-            // Get the Predicates of childs, aggregate
-            // m_predicate = Predicate.getPredicate(nodeE, miningSchema);
-        }
-        
-        public Predicate getSimplePredicate(Element simpleP, ArrayList<Feature> featureList) 
-                throws Exception {
-            Predicate predicate = new Predicate("SimplePredicate");
-            
-            // get the field name and set up the index
-            String fieldS = simpleP.getAttribute("field");
-            if (!featureList.contains(fieldS)) {
-              throw new Exception("[SimplePredicate] unable to find field " + fieldS
-                  + " in the incoming instance structure!");
-            }
-            
-            for (Feature f : featureList) {
-                if (f.name.equals(fieldS)) {
-                    predicate.featureGUID = f.GUID;
-                    break;
-                  }
-            }
-            
-            // get the operator
-            String oppS = simpleP.getAttribute("operator");
-            predicate.operator = oppS;
-
-            // get value: assume SimplePredicate = numberic value!!!!
-            String valueS = simpleP.getAttribute("value");
-            predicate.value = Double.parseDouble(valueS);
-            
-            return predicate;
-        }
-        
-        public Predicate getSimpleSetPredicate(Element setP, ArrayList<Feature> featureList) 
-                throws Exception {
-            Predicate predicate = new Predicate("SimplePredicate");
-            
-            // get the field name and set up the index
-            String fieldS = setP.getAttribute("field");
-            if (!featureList.contains(fieldS)) {
-              throw new Exception("[SimplePredicate] unable to find field " + fieldS
-                  + " in the incoming instance structure!");
-            }
-            
-            for (Feature f : featureList) {
-                if (f.name.equals(fieldS)) {
-                    predicate.featureGUID = f.GUID;
-                    break;
-                  }
-            }
-            
-            // get the operator
-            String oppS = setP.getAttribute("operator");
-            predicate.operator = oppS;
-
-            // get value: assume SimpleSetPredicate = nominal value!!!!
-            // need to scan the children looking for an array type
-            NodeList children = setP.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    if (Array.isArray((Element)child)) {
-                        // found the array
-                        predicate.valueSet = Array.create((Element)child);
-                        break;
-                      }
-                }
-            }
-
-            if (predicate.valueSet == null) {
-              throw new Exception("[SimpleSetPredictate] couldn't find an " +
-              "array containing the set values!");
-            }
-
-            return predicate;
-        }
-
-        private void getChildNodes(Element nodeE, DecisionTree parent)
-                throws Exception {
-            NodeList children = nodeE.getChildNodes();
-
-            for (int i = 0; i < children.getLength(); i++) {
-                Node child = children.item(i);
-                if (child.getNodeType() == Node.ELEMENT_NODE) {
-                    String tagName = ((Element) child).getTagName();
-                    if (tagName.equals("Node")) {
-                        TreeNode tempN = new TreeNode((Element) child, parent);
-                        m_childNodes.add(tempN);
-                    }
-                }
+            } else {
+                throw new JSONException("Cannot have a node with no Feature nor Result defined.");
             }
         }
 
         public int getID() {
-            return m_ID;
+            return m_id;
+        }
+        
+        public void updateChild(HashMap<Integer, TreeNode> nodeDict) {
+            for (int i = 0; i < childCount; i++) {
+                m_childNodes.add(nodeDict.get(childList[i]));
+            }
         }
 
         @Override
         public void writeXDR(XDRDataOutput output) throws IOException {
+            /*
          // Write the id of the node
             output.writeInt(this.getID());
 
@@ -292,19 +142,20 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             // first write number of children
             output.writeInt(this.m_childNodes.size());
             for (TreeNode child : this.m_childNodes) {
-                output.writeInt(child.m_ID);
+                output.writeInt(child.m_id);
             }
 
             // Write the split information of this node to XDR
             this.m_split.writeXDR(output);
-            
+            */
         }
 
         @Override
         public void readXDR(XDRDataInput input) throws IOException {
+            /*
             // Read the node
             int id = input.readInt();
-            this.m_ID = id;
+            this.m_id = id;
 
             //int type = input.readShort();
             //this.type = type;
@@ -324,6 +175,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             Spliter spliter = new Spliter();
             spliter.readXDR(input);
             this.m_split = spliter;
+            */
         }
     }
 
@@ -338,55 +190,30 @@ public class DecisionTree extends Classifier implements XDRSerializable {
     protected TreeNode m_root = null;
 
     public DecisionTree() {
-
-    }
-
-    public DecisionTree(boolean example) {
-        // Build an example tree
-        m_root = new TreeNode(0);
-        m_root.m_split = new Spliter(1);
-        m_root.m_split.indexSet = new int[3];
-        m_root.m_split.indexSet[0] = 0;
-        m_root.m_split.indexSet[0] = 1;
-        m_root.m_split.indexSet[0] = 2;
-        //m_root.type = 0;
-
-        TreeNode n1 = new TreeNode(1);
-        n1.m_scoreIndex = 0;
-        n1.m_split = new Spliter(0);
-        TreeNode n2 = new TreeNode(2);
-        n2.m_scoreIndex = 1;
-        n2.m_split = new Spliter(0);
-        TreeNode n3 = new TreeNode(3);
-        n3.m_split = new Spliter(0);
-        n2.m_scoreIndex = 2;
-
-        // TreeNode n21 = new TreeNode(4);
-        // TreeNode n31 = new TreeNode(5);
-
-        m_root.m_childNodes.add(n1);
-        m_root.m_childNodes.add(n2);
-        m_root.m_childNodes.add(n3);
-
-        // n2.m_childNodes.add(n21);
-        // n3.m_childNodes.add(n31);
     }
 
     @Override
-    public void getModel(Element modelEl, FeaturePool m_featurePool)
-            throws Exception {
-        // find the root node of the tree
-        NodeList children = modelEl.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                String tagName = ((Element) child).getTagName();
-                if (tagName.equals("Node")) {
-                    m_root = new TreeNode((Element) child, this);
-                    break;
-                }
-            }
+    protected void getModel(JSONObject modelObj) throws JSONException {
+        if (!modelObj.getString("Type").equals("TREE"))
+            throw new JSONException("[DecisionTree.getModel] not a tree model.");
+        
+        String defaultResult = modelObj.getString("defaultResult");
+        
+        JSONArray nodeList = modelObj.getJSONArray("Nodes");
+        TreeNode[] nodeArray = new TreeNode[nodeList.length()];
+        HashMap<Integer, TreeNode> nodeDict = new HashMap<Integer, TreeNode>();
+        for (int i = 0; i < nodeList.length(); i++) {
+            JSONObject nodeObj = nodeList.getJSONObject(i);
+            nodeArray[i] = new TreeNode(nodeObj, this);
+            nodeDict.put(nodeArray[i].getID(), nodeArray[i]);
         }
+        
+        // Need to loop the node list once more to construct node links
+        for (int i = 0; i < nodeList.length(); i++) {
+            nodeArray[i].updateChild(nodeDict);
+        }
+        
+        
     }
 
     public ArrayList<TreeNode> preOrderTraversal(TreeNode node) {
@@ -436,7 +263,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             for (int i = 0; i < n; i++) {
                 TreeNode node = new TreeNode();
                 node.readXDR(input);
-                map.put(node.m_ID, node);
+                map.put(node.m_id, node);
                 list.add(node);
             }
 
@@ -476,13 +303,11 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             tree.readXDR(input);
             ArrayList<TreeNode> result = tree.traversal();
             for (TreeNode node : result) {
-                System.out.println(node.m_ID);
+                System.out.println(node.m_id);
             }
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

@@ -1,0 +1,307 @@
+﻿{
+        “Name”: “Determine Transportation Model Using Mobile Phone”,
+“Feature List” : [
+                {
+                        “ID”: 8,
+“Name”: “Indoor”,
+                        “SensorID”: [1, 2]
+},
+                {
+                        “ID”: 1,
+“Name”: “Speed”,
+                        “SensorID”: [1, 2],
+                        “Unit”: “mph”
+},
+{
+        “ID”: 6,
+        “Name”: “Accelerometer Variance”,
+        “SensorID”: 2         
+},
+{
+        “ID”: 3,
+        “Name”: “Energy Coefficient”,
+        “SensorID”: 2,
+        “Parameter”: [1, 2, 3, 5, 8]
+        
+},
+{
+        “Name”: “Transportation Mode”,
+        “isResult”: true,
+“Result”: [“still”, “walk”, “run”, “bike”, “driving”]
+}
+],
+        “Model”: {
+                “Type”: “TREE”,
+                “Default Result”: “still”,
+                “Nodes”: [
+                        {
+                “ID”: 1,
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 0.29,
+                “ChildNode”: [2, 23]
+                        },
+{
+                “ID”: 2,
+                “Feature”: “Accelerometer Variance”,
+                “Operation”: “<=”,
+                “Value”: 0.0047,
+                “ChildNode”: [3, 4]
+                        },
+{
+                “ID”: 3,
+                “Feature”: “Accelerometer Variance”,
+                “Operation”: “<=”,
+                “Value”: 0.0016,
+                “ChildNode”: [5, 6]
+                        },
+{
+                “ID”: 4,
+                “Feature”: [“Energy Coefficient”, 3],
+                “Operation”: “<=”,
+                “Value”: 60.3539,
+                “ChildNode”: [7, 8]
+                        },
+{
+                “ID”: 5,
+                "Result”: “still”
+                        },
+{
+                “ID”: 6,
+                “Feature”: [“Energy Coefficient”, 5],
+                “Operation”: “<=”,
+                “Value”: 0.1532,
+                “ChildNode”: [9, 10]
+                        },
+{
+                “ID”: 7,
+                “Feature”: “Accelerometer Variance”,
+                “Operation”: “<=”,
+                “Value”: 0.0085,
+                “ChildNode”: [11, 12]
+},
+{
+                “ID”: 8,
+“Result”: “run”                
+                },
+{
+                “ID”: 9,
+                “Feature”: [“Energy Coefficient”, 1],
+                “Operation”: “<=”,
+                “Value”: 0.5045,
+                “ChildNode”: [13, 14]
+                        },
+{
+                “ID”: 10,
+                “Result”: “stull”
+                        },
+{
+                “ID”: 11,
+                “Feature”: [“Energy Coefficient”, 8],
+                “Operation”: “<=”,
+                “Value”: 0.0506,
+                “ChildNode”: [15, 16]
+                        },
+{
+                “ID”: 12,
+                “Feature”: [“Energy Coefficient”, 2],
+                “Operation”: “<=”,
+                “Value”: 2.7725,
+                “ChildNode”: [17, 18]
+                        },
+{
+                “ID”: 13,
+                “Result”: “still”
+                        },
+{
+                “ID”: 14,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 15,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 16,
+                “Feature”: [“Energy Coefficient”, 2],
+                “Operation”: “<=”,
+                “Value”: 2.8607,
+                “ChildNode”: [19, 20]
+                        },
+{
+                “ID”: 17,
+                “Feature”: [“Energy Coefficient”, 1],
+                “Operation”: “<=”,
+                “Value”: 13.0396,
+                “ChildNode”: [21, 22]
+                        },
+{
+                “ID”: 18,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 19,
+                “Result”: “still”
+                        },
+{
+                “ID”: 20,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 21,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 22,
+                “Result”: “still”
+                        },
+{
+                “ID”: 23,
+                “Feature”: [“Energy Coefficient”, 3],
+                “Operation”: “<=”,
+                “Value”: 2663606.69633,
+                “ChildNode”: [24, 25]
+                        },
+{
+                “ID”: 24,
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 6.37,
+                “ChildNode”: [26, 27]
+                        },
+{
+                “ID”: 25,
+                “Feature”: [“Energy Coefficient”, 3],
+                “Operation”: “<=”,
+                “Value”: 5132319.94693,
+                “ChildNode”: [28, 29]
+                        },
+{
+                “ID”: 26,
+                “Feature”: [“Energy Coefficient”, 2],
+                “Operation”: “<=”,
+                “Value”: 463400.011249,
+                “ChildNode”: [30, 31]
+                        },
+{
+                “ID”: 27,
+                “Result”: “drive”
+                        },
+{
+                “ID”: 28,
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 1.86,
+                “ChildNode”: [32, 33]
+                        },
+{
+                “ID”: 29,
+                “Result”: “run”
+                        },
+{
+                “ID”: 30,
+                “Feature”: “Accelerometer Variance”,
+                “Operation”: “<=”,
+                “Value”: 205.972492,
+                “ChildNode”: [34, 35]
+                        },
+{
+                “ID”: 31,
+                “Feature”: “Accelerometer Variance”,
+                “Operation”: “<=”,
+                “Value”: 41153.783729,
+                “ChildNode”: [36, 37]
+                        },
+{
+                “ID”: 32,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 33,
+                “Result”: “run”
+                        },
+{
+                “ID”: 34,
+                “Feature”: “Accelerometer Variance”,
+                “Operation”: “<=”,
+                “Value”: 13.084102,
+                “ChildNode”: [38, 39]
+                        },
+{
+                “ID”: 35,
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 1.33,
+                “ChildNode”: [40, 41]
+                        },
+{
+                “ID”: 36,
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 2.12,
+                “ChildNode”: [42, 43]
+                        },
+{
+                “ID”: 37,
+                “Result”: “run”
+                        },
+{
+                “ID”: 38
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 0.8,
+                “ChildNode”: [44, 45]
+                        },
+{
+                “ID”: 39,
+                “Feature”: “Speed”,
+                “Operation”: “<=”,
+                “Value”: 1.33,
+                “ChildNode”: [46, 47]
+                        },
+{
+                “ID”: 40,
+                “Feature”: [“Energy Coefficient”, 2],
+                “Operation”: “<=”,
+                “Value”: 125502.942136,
+                “ChildNode”: [48, 49]
+                        },
+{
+                “ID”: 41,
+                “Result”: “bike”
+                        },
+{
+                “ID”: 42,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 43,
+                “Result”: “bike”
+                        },
+{
+                “ID”: 44,
+                “Result”: “still”
+                        },
+{
+                “ID”: 45,
+                “Result”: “drive”
+                        },
+{
+                “ID”: 46,
+                “Result”: “still”
+                        },
+{
+                “ID”: 47,
+                “Result”: “drive”
+                        },
+{
+                “ID”: 48,
+                “Result”: “walk”
+                        },
+{
+                “ID”: 49,
+                “Result”: “walk”
+                        },
+]
+}
+}

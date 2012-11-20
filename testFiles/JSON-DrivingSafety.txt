@@ -1,0 +1,66 @@
+﻿{
+        “Name”: “Driving Safety”,
+“Feature List” : [
+                {
+                        “Name”: “Speed”,
+                        “SensorID”: [1, 2],
+                        “Unit”: “mph”
+},
+{
+        “Name”: “Weather”,
+        “SensorID”: 3
+},
+{        
+        “Name”: “Safety”,
+        “isResult”: true,
+“Result”: [“Safe”, “Medium”, ”Dangerous” ]
+}
+],
+        “Model”: {
+                “Type”: “TREE”,
+                “Default Result”: “Dangerous”,
+                “Nodes”: [
+                        {
+                “ID”: 1,
+                “Feature”: “Weather”,
+                “Operation”: “membership”,
+                “Value”: [“Sunny”, “Cloudy”, “Rainy”, “Storm”],
+                “ChildNode”: [2, 2, 3, 4]
+                        }
+        {
+                “ID”: 2,
+                “Feature”: “Speed”,
+                “Operation”: “>”,
+                “Value”: 65,
+                “ChildNode”: [5, 6]
+},
+        {
+                “ID”: 5,
+                “Result”: “Dangerous”,
+},
+{
+        “ID”: 6,
+        “Result”: “Safe”
+},
+{
+                “ID”: 3,
+                “Feature”: “Speed”,
+                “Operation”: “>”,
+                “Value”: 40,
+                “ChildNode”: [7, 8]
+},
+        {
+                “ID”: 7,
+                “Result”: “Dangerous”,
+},
+{
+        “ID”: 8,
+        “Result”: “Safe”
+},
+        {
+                “ID”: 4,
+                “Result”: “Dangerous”,
+}
+]
+}
+}

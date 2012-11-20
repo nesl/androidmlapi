@@ -45,7 +45,7 @@ public class Feature {
         */
     }
     
-    public long GUID;
+    public int id;
     public String name;
     public OPType opType;
     public DataType dataType;

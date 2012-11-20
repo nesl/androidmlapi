@@ -19,7 +19,7 @@
  *
  */
 
-package edu.ucla.nesl.mca.classifier;
+package edu.ucla.nesl.mca.pmml;
 
 import java.io.Serializable;
 import java.io.StreamTokenizer;
