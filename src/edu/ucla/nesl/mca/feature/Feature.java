@@ -23,31 +23,51 @@ public class Feature {
         }
     }
     
-    public enum DataType {
-        /*
-    <xs:enumeration value="string"/>
-    <xs:enumeration value="integer"/>
-    <xs:enumeration value="float"/>
-    <xs:enumeration value="double"/>
-    <xs:enumeration value="boolean"/>
-    <xs:enumeration value="date"/>
-    <xs:enumeration value="time"/>
-    <xs:enumeration value="dateTime"/>
-    <xs:enumeration value="dateDaysSince[0]"/>
-    <xs:enumeration value="dateDaysSince[1960]"/>
-    <xs:enumeration value="dateDaysSince[1970]"/>
-    <xs:enumeration value="dateDaysSince[1980]"/>
-    <xs:enumeration value="timeSeconds"/>
-    <xs:enumeration value="dateTimeSecondsSince[0]"/>
-    <xs:enumeration value="dateTimeSecondsSince[1960]"/>
-    <xs:enumeration value="dateTimeSecondsSince[1970]"/>
-    <xs:enumeration value="dateTimeSecondsSince[1980]"/>
-        */
-    }
-    
     public int id;
     public String name;
+    public int[] sensors;
     public OPType opType;
-    public DataType dataType;
+    public double dataValue;
     public ArrayList<String> dataSet;   // only used if NOMINAL
+    
+    public Feature() {
+    	
+    }
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int[] getSensors() {
+		return sensors;
+	}
+
+	public void setSensors(int[] sensors) {
+		this.sensors = sensors;
+	}
+
+	public OPType getOpType() {
+		return opType;
+	}
+
+	public void setOpType(OPType opType) {
+		this.opType = opType;
+	}
+	
+	public double evaluate(String type, double value) {
+		
+		return 0.0;
+	}
 }

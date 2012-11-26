@@ -283,32 +283,17 @@ public class DecisionTree extends Classifier implements XDRSerializable {
     }
 
     /**
-     * Main routine to test XDR write
+     * Main routine to parse a JSON file and generate a decision tree
      * 
      * @param args
      */
     public static void main(String[] args) {
         DecisionTree tree = new DecisionTree();
-        // ArrayList<TreeNode> result = tree.traversal();
-        // for(TreeNode node:result) {
-        // System.out.println(node.m_ID);
-        // }
-
         try {
-            // XDROutputStream output = new XDROutputStream(new
-            // FileOutputStream(new File("tree.xdr")));
-            // tree.writeXDR(output);
-            XDRInputStream input = new XDRInputStream(new FileInputStream(
-                    new File("tree.xdr")));
-            tree.readXDR(input);
-            ArrayList<TreeNode> result = tree.traversal();
-            for (TreeNode node : result) {
-                System.out.println(node.m_id);
-            }
-        } catch (FileNotFoundException e) {
+        	tree.parseJSON("JSON-Test.txt");
+        	
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } 
     }
 }
