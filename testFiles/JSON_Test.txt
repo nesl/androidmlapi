@@ -1,0 +1,34 @@
+{
+        "Name": "Determine Transportation Model Using Mobile Phone",
+		"Feature List" : [
+                		{
+                        	"ID": 8,
+							"Name": "Indoor",
+                        	"SensorID": [1, 2]
+						},
+                		{
+                        	"ID": 1,
+							"Name": "Speed",
+                        	"SensorID": [1, 2],
+                        	"Unit": "mph"
+						},
+						{
+        					"ID": 6,
+        					"Name": "Variance",
+        					"SensorID": 2
+        					"Window":     
+						},
+						{
+        					"ID": 3,
+        					"Name": "Energy Coefficient",
+        					"SensorID": 2,
+        					"Parameter": [1, 2, 3, 5, 8]
+        
+						},
+						{
+        					"Name": "Transportation Mode",
+        					"isResult": true,
+							"Result": ["still", "walk", "run", "bike", "driving"]
+						}
+						]
+}
