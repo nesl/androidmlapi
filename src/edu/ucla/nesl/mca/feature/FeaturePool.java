@@ -12,8 +12,21 @@ public class FeaturePool implements XDRSerializable{
      * TODO: feature pool requires synchronization between server and client
      * Once client update feature set, need to retrain
      */
-    private HashMap<String, Integer> m_nameMap = new HashMap<String, Integer>();
-    private HashMap<Integer, Feature> m_features = new HashMap<Integer, Feature>();
+    private HashMap<String, Integer> m_nameMap ;
+    private HashMap<Integer, Feature> m_features;
+    
+    public FeaturePool() {
+    	m_nameMap = new HashMap<String, Integer>();
+    	m_features = new HashMap<Integer, Feature>();
+    }
+    
+    public void addFeature(Feature newFeature) {
+    	m_features.put(newFeature.id, newFeature);
+    }
+    
+    public Feature getFeature(int id) {
+    	return m_features.get(id);
+    }
     
     // Delete Feature may cause nameMap index error, not implemented
     

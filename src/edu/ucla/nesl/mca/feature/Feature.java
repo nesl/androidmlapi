@@ -25,14 +25,23 @@ public class Feature {
     
     public int id;
     public String name;
-    public int[] sensors;
+    public int sensor;
     public OPType opType;
     public double dataValue;
+    public boolean isResult;
     public ArrayList<String> dataSet;   // only used if NOMINAL
     
     public Feature() {
-    	
+    	dataSet = new ArrayList<String>();
     }
+
+	public boolean isResult() {
+		return isResult;
+	}
+
+	public void setResult(boolean isResult) {
+		this.isResult = isResult;
+	}
 
 	public int getId() {
 		return id;
@@ -49,13 +58,13 @@ public class Feature {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public int[] getSensors() {
-		return sensors;
+	
+	public int getSensor() {
+		return sensor;
 	}
 
-	public void setSensors(int[] sensors) {
-		this.sensors = sensors;
+	public void setSensor(int sensor) {
+		this.sensor = sensor;
 	}
 
 	public OPType getOpType() {
@@ -64,6 +73,10 @@ public class Feature {
 
 	public void setOpType(OPType opType) {
 		this.opType = opType;
+	}
+	
+	public void addMembership(String mem) {
+		dataSet.add(mem);
 	}
 	
 	public double evaluate(String type, double value) {

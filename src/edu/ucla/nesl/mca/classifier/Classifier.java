@@ -31,7 +31,6 @@ public abstract class Classifier implements XDRSerializable {
 					.nextValue();
 			JSONObject model = object.getJSONObject("Model");
 			return model.getString("Type");
-
 		} catch (JSONException e) {
 			throw new IOException(e);
 		}
@@ -39,24 +38,34 @@ public abstract class Classifier implements XDRSerializable {
 
 	public void parseJSON(String jsonString) throws Exception {
 		this.json = jsonString;
+		m_inputs = new FeaturePool();
 		Log.i("Classifier", "set json string=" + jsonString);
 		try {
 			JSONObject object = (JSONObject) new JSONTokener(jsonString).nextValue();
-			this.name = object.getString("Name");
+			object.getString("Name");
 			JSONArray featureList = object.getJSONArray("Feature List");
-			// JSONObject model = object.getJSONObject("Model");
+			JSONObject model = object.getJSONObject("Model");
 			for (int i = 0; i < featureList.length(); i++) {
-				JSONObject feature = featureList.getJSONObject(i);
-				boolean isResult = false;
-				if (object.has("isResult")) {
-					isResult = object.getBoolean("isResult");
+				JSONObject featureObj = featureList.getJSONObject(i);
+				Feature feature = new Feature();
+				feature.id = featureObj.getInt("ID");
+				feature.name = featureObj.getString("Name");		
+				if (featureObj.has("isResult") && featureObj.getBoolean("isResult")) {
+					feature.isResult = true;
+					JSONArray res = featureObj.getJSONArray("Result");
+					for (int j = 0; j < res.length(); j++) {
+						feature.addMembership(res.getString(j));
+					}
+				} 
+				else {
+					feature.isResult = false;
+					feature.sensor = featureObj.getInt("SensorID");		
+					//System.out.println(feature.id + " " + feature.name + " " + feature.sensor);
 				}
-
-				Feature f = new Feature();
-
+				m_inputs.add(feature);
 			}
 
-			// this.getModel(model);
+			this.getModel(model);
 
 		} catch (Exception e) {
 			throw new Exception(e);

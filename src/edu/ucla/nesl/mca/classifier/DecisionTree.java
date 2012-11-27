@@ -8,7 +8,6 @@ import edu.ucla.nesl.mca.feature.Feature;
 import edu.ucla.nesl.mca.feature.Feature.OPType;
 import edu.ucla.nesl.mca.xdr.XDRDataInput;
 import edu.ucla.nesl.mca.xdr.XDRDataOutput;
-import edu.ucla.nesl.mca.xdr.XDRInputStream;
 import edu.ucla.nesl.mca.xdr.XDRSerializable;
 
 public class DecisionTree extends Classifier implements XDRSerializable {
@@ -70,6 +69,8 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
         /** result if resultType is REAL */
         private double m_realResult = Double.NaN;
+        
+        private String m_nominalResult = null;
 
         /** Child nodes of this node */
         private ArrayList<TreeNode> m_childNodes = new ArrayList<TreeNode>();
@@ -85,12 +86,13 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         public TreeNode(JSONObject nodeObj, DecisionTree parent) throws JSONException {
             m_id = nodeObj.getInt("ID");
             
-            if (nodeObj.has("Feature")) {
-                String featureName = nodeObj.getString("Feature");
-                m_feature = parent.getInputs().get(featureName);
+            if (nodeObj.has("FeatureID")) {
+                int featureID = nodeObj.getInt("FeatureID");
+                m_feature = parent.getInputs().getFeature(featureID);
+                
                 m_type = m_feature.opType;
                 if (m_type == OPType.REAL) {
-                    String op = nodeObj.getString("Operation");
+                    String op = nodeObj.getString("Operator");
                     for (RealOperator o : RealOperator.values()) {
                         if (o.toString().equals(op)) {
                             m_realOp = o;
@@ -99,18 +101,24 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                     }
                     m_realThes = nodeObj.getDouble("Value");
                 }
-                JSONArray childNodeList = nodeObj.getJSONArray("Nodes");
+                
+                JSONArray childNodeList = nodeObj.getJSONArray("ChildNode");
                 childCount = childNodeList.length();
                 childList = new int[childCount];
                 for (int i = 0; i < childCount; i++) {
                     childList[i] = childNodeList.getInt(i);
                 }
-            } else if (nodeObj.has("Result")) {
+            } 
+            else if (nodeObj.has("Result")) {
                 m_resultType = parent.getOutput().opType;
                 if (m_resultType == OPType.REAL) {
                     m_realResult = nodeObj.getDouble("Result");
                 }
-            } else {
+                else if (m_resultType == OPType.NOMINAL) {
+                	m_nominalResult = nodeObj.getString("Result");
+                }
+            } 
+            else {
                 throw new JSONException("Cannot have a node with no Feature nor Result defined.");
             }
         }
@@ -127,55 +135,12 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
         @Override
         public void writeXDR(XDRDataOutput output) throws IOException {
-            /*
-         // Write the id of the node
-            output.writeInt(this.getID());
 
-            // Write the type of the node
-            //output.writeShort(this.type);
-
-            // Write the score of the node
-            //output.writeInt(this.type);
-            output.writeDouble(this.m_scoreNumeric);
-
-            // Write the id of all children
-            // first write number of children
-            output.writeInt(this.m_childNodes.size());
-            for (TreeNode child : this.m_childNodes) {
-                output.writeInt(child.m_id);
-            }
-
-            // Write the split information of this node to XDR
-            this.m_split.writeXDR(output);
-            */
         }
 
         @Override
         public void readXDR(XDRDataInput input) throws IOException {
-            /*
-            // Read the node
-            int id = input.readInt();
-            this.m_id = id;
-
-            //int type = input.readShort();
-            //this.type = type;
-
-            int score1 = input.readInt();
-            this.m_scoreIndex = score1;
-
-            double score2 = input.readDouble();
-            this.m_scoreNumeric = score2;
-
-            int nChild = input.readInt();
-            this.childList = new int[nChild];
-            for (int i = 0; i < nChild; i++) {
-                childList[i] = input.readInt();
-            }
-
-            Spliter spliter = new Spliter();
-            spliter.readXDR(input);
-            this.m_split = spliter;
-            */
+            
         }
     }
 
@@ -188,32 +153,31 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
     /** The root of the tree */
     protected TreeNode m_root = null;
-
+    
+    /** Default evaluation result */
+    protected String defaultResult;
+    
     public DecisionTree() {
     }
 
     @Override
-    protected void getModel(JSONObject modelObj) throws JSONException {
-        if (!modelObj.getString("Type").equals("TREE"))
-            throw new JSONException("[DecisionTree.getModel] not a tree model.");
-        
-        String defaultResult = modelObj.getString("defaultResult");
+    protected void getModel(JSONObject modelObj) throws JSONException {       
+        defaultResult = modelObj.getString("defaultResult");
         
         JSONArray nodeList = modelObj.getJSONArray("Nodes");
         TreeNode[] nodeArray = new TreeNode[nodeList.length()];
         HashMap<Integer, TreeNode> nodeDict = new HashMap<Integer, TreeNode>();
+        
+        // Read and build all the tree nodes
         for (int i = 0; i < nodeList.length(); i++) {
-            JSONObject nodeObj = nodeList.getJSONObject(i);
-            nodeArray[i] = new TreeNode(nodeObj, this);
+            nodeArray[i] = new TreeNode(nodeList.getJSONObject(i), this);
             nodeDict.put(nodeArray[i].getID(), nodeArray[i]);
         }
         
-        // Need to loop the node list once more to construct node links
+        // Need to loop the node list once more to construct node hierarchy
         for (int i = 0; i < nodeList.length(); i++) {
             nodeArray[i].updateChild(nodeDict);
         }
-        
-        
     }
 
     public ArrayList<TreeNode> preOrderTraversal(TreeNode node) {

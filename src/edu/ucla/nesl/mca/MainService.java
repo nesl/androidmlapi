@@ -42,6 +42,7 @@ public class MainService extends ConfiguredPipeline  {
 			Toast.makeText(this, "json data=" + classifier.getJson(), Toast.LENGTH_SHORT).show();
 			
 			// after build classifier, check each feature and run each probe
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
