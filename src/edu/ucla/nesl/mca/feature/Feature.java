@@ -7,13 +7,7 @@ public class Feature {
     public enum OPType {
         NOMINAL(1),
         REAL(2);
-        
-        /*
-        CATEGORICAL(1),
-        ORDINAL(2),
-        CONTINUOUS(3);
-        */
-        
+ 
         private final int num;
         OPType(int value) {
             this.num = value;

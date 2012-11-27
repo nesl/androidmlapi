@@ -71,8 +71,90 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         private double m_realResult = Double.NaN;
         
         private String m_nominalResult = null;
+        
+        private int m_parameter = -1;
 
-        /** Child nodes of this node */
+        public int getM_id() {
+			return m_id;
+		}
+
+		public void setM_id(int m_id) {
+			this.m_id = m_id;
+		}
+
+		public Feature getM_feature() {
+			return m_feature;
+		}
+
+		public void setM_feature(Feature m_feature) {
+			this.m_feature = m_feature;
+		}
+
+		public OPType getM_type() {
+			return m_type;
+		}
+
+		public void setM_type(OPType m_type) {
+			this.m_type = m_type;
+		}
+
+		public RealOperator getM_realOp() {
+			return m_realOp;
+		}
+
+		public void setM_realOp(RealOperator m_realOp) {
+			this.m_realOp = m_realOp;
+		}
+
+		public double getM_realThes() {
+			return m_realThes;
+		}
+
+		public void setM_realThes(double m_realThes) {
+			this.m_realThes = m_realThes;
+		}
+
+		public OPType getM_resultType() {
+			return m_resultType;
+		}
+
+		public void setM_resultType(OPType m_resultType) {
+			this.m_resultType = m_resultType;
+		}
+
+		public double getM_realResult() {
+			return m_realResult;
+		}
+
+		public void setM_realResult(double m_realResult) {
+			this.m_realResult = m_realResult;
+		}
+
+		public String getM_nominalResult() {
+			return m_nominalResult;
+		}
+
+		public void setM_nominalResult(String m_nominalResult) {
+			this.m_nominalResult = m_nominalResult;
+		}
+
+		public int getM_parameter() {
+			return m_parameter;
+		}
+
+		public void setM_parameter(int m_parameter) {
+			this.m_parameter = m_parameter;
+		}
+
+		public ArrayList<TreeNode> getM_childNodes() {
+			return m_childNodes;
+		}
+
+		public void setM_childNodes(ArrayList<TreeNode> m_childNodes) {
+			this.m_childNodes = m_childNodes;
+		}
+
+		/** Child nodes of this node */
         private ArrayList<TreeNode> m_childNodes = new ArrayList<TreeNode>();
         
         /** Temp array to store children IDs, not exported to XDR */
@@ -89,7 +171,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             if (nodeObj.has("FeatureID")) {
                 int featureID = nodeObj.getInt("FeatureID");
                 m_feature = parent.getInputs().getFeature(featureID);
-                
+                m_parameter = nodeObj.getInt("Parameter");
                 m_type = m_feature.opType;
                 if (m_type == OPType.REAL) {
                     String op = nodeObj.getString("Operator");
@@ -131,6 +213,10 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             for (int i = 0; i < childCount; i++) {
                 m_childNodes.add(nodeDict.get(childList[i]));
             }
+        }
+        
+        public void evaluate() {
+        	
         }
 
         @Override
@@ -244,20 +330,5 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                 //System.out.println();
             }
         }
-    }
-
-    /**
-     * Main routine to parse a JSON file and generate a decision tree
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        DecisionTree tree = new DecisionTree();
-        try {
-        	tree.parseJSON("JSON-Test.txt");
-        	
-        } catch (Exception e) {
-            e.printStackTrace();
-        } 
     }
 }

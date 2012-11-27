@@ -49,6 +49,7 @@ public abstract class Classifier implements XDRSerializable {
 				JSONObject featureObj = featureList.getJSONObject(i);
 				Feature feature = new Feature();
 				feature.id = featureObj.getInt("ID");
+				feature.opType = BuiltInClassifier.getOPType(feature.id);
 				feature.name = featureObj.getString("Name");		
 				if (featureObj.has("isResult") && featureObj.getBoolean("isResult")) {
 					feature.isResult = true;
@@ -56,13 +57,15 @@ public abstract class Classifier implements XDRSerializable {
 					for (int j = 0; j < res.length(); j++) {
 						feature.addMembership(res.getString(j));
 					}
+					feature.opType = Feature.OPType.NOMINAL;
+					m_output = feature;
 				} 
 				else {
 					feature.isResult = false;
 					feature.sensor = featureObj.getInt("SensorID");		
 					//System.out.println(feature.id + " " + feature.name + " " + feature.sensor);
+					m_inputs.add(feature);
 				}
-				m_inputs.add(feature);
 			}
 
 			this.getModel(model);

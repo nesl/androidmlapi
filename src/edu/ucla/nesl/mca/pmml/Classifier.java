@@ -60,27 +60,27 @@ public abstract class Classifier implements XDRSerializable{
     }
     
     public void parseJSON(String jsonString) throws IOException {
-        try {
-            JSONObject object = (JSONObject) new JSONTokener(jsonString).nextValue();
-            String name = object.getString("Name");
-            JSONArray featureList = object.getJSONArray("Feature List");
-            JSONObject model = object.getJSONObject("Model");
-            
-            for (int i = 0; i < featureList.length(); i++) {
-                JSONObject feature = featureList.getJSONObject(i);
-                boolean isResult = false;
-                if (object.has("isResult")) {
-                    isResult = object.getBoolean("isResult");
-                }
-                
-                Feature f = new Feature();
-            }
-            
-            this.getModel(model);
-            
-        } catch (JSONException e) {
-            throw new IOException(e);
-        }
+//        try {
+//            JSONObject object = (JSONObject) new JSONTokener(jsonString).nextValue();
+//            String name = object.getString("Name");
+//            JSONArray featureList = object.getJSONArray("Feature List");
+//            JSONObject model = object.getJSONObject("Model");
+//            
+//            for (int i = 0; i < featureList.length(); i++) {
+//                JSONObject feature = featureList.getJSONObject(i);
+//                boolean isResult = false;
+//                if (object.has("isResult")) {
+//                    isResult = object.getBoolean("isResult");
+//                }
+//                
+//                Feature f = new Feature();
+//            }
+//            
+//            this.getModel(model);
+//            
+//        } catch (JSONException e) {
+//            throw new IOException(e);
+//        }
     }
 
     protected abstract void getModel(JSONObject modelObj) throws JSONException;
