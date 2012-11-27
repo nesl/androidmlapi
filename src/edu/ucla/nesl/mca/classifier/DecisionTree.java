@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import org.json.*;
 
+import android.util.Log;
+
 import edu.ucla.nesl.mca.feature.Feature;
 import edu.ucla.nesl.mca.feature.Feature.OPType;
 import edu.ucla.nesl.mca.xdr.XDRDataInput;
@@ -47,7 +49,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
           }
     }
 
-    protected class TreeNode implements XDRSerializable {
+    class TreeNode implements XDRSerializable {
         
         /** ID for this node */
         private int m_id = -1;
@@ -167,11 +169,15 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
         public TreeNode(JSONObject nodeObj, DecisionTree parent) throws JSONException {
             m_id = nodeObj.getInt("ID");
-            
+            Log.i("DecisionTree", "Node ID=" + m_id);
             if (nodeObj.has("FeatureID")) {
                 int featureID = nodeObj.getInt("FeatureID");
+                Log.i("DecisionTree", "FeatureID=" + featureID);
                 m_feature = parent.getInputs().getFeature(featureID);
-                m_parameter = nodeObj.getInt("Parameter");
+                Log.i("DecisionTree", "Feature=" + m_feature.getName());
+                if (nodeObj.has("Parameter")) {
+                	m_parameter = nodeObj.getInt("Parameter");
+                }
                 m_type = m_feature.opType;
                 if (m_type == OPType.REAL) {
                     String op = nodeObj.getString("Operator");
@@ -198,6 +204,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                 }
                 else if (m_resultType == OPType.NOMINAL) {
                 	m_nominalResult = nodeObj.getString("Result");
+                	Log.i("DecisionTree", "Result=" + m_nominalResult);
                 }
             } 
             else {
@@ -246,9 +253,17 @@ public class DecisionTree extends Classifier implements XDRSerializable {
     public DecisionTree() {
     }
 
-    @Override
+    public TreeNode getM_root() {
+		return m_root;
+	}
+
+	public void setM_root(TreeNode m_root) {
+		this.m_root = m_root;
+	}
+	
+	@Override
     protected void getModel(JSONObject modelObj) throws JSONException {       
-        defaultResult = modelObj.getString("defaultResult");
+        defaultResult = modelObj.getString("Default Result");
         
         JSONArray nodeList = modelObj.getJSONArray("Nodes");
         TreeNode[] nodeArray = new TreeNode[nodeList.length()];
@@ -259,7 +274,8 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             nodeArray[i] = new TreeNode(nodeList.getJSONObject(i), this);
             nodeDict.put(nodeArray[i].getID(), nodeArray[i]);
         }
-        
+        m_root = nodeArray[0];
+        Log.i("DecisionTree", "Root Node ID=" + m_root.m_id);
         // Need to loop the node list once more to construct node hierarchy
         for (int i = 0; i < nodeList.length(); i++) {
             nodeArray[i].updateChild(nodeDict);
@@ -279,6 +295,11 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 
     public ArrayList<TreeNode> traversal() {
         return preOrderTraversal(m_root);
+    }
+    
+    
+    public Feature getRootFeature () {
+    	return m_root.m_feature;
     }
 
     @Override

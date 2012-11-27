@@ -15,11 +15,10 @@ import android.util.Log;
 import android.widget.Toast;
 import edu.mit.media.funf.configured.ConfiguredPipeline;
 import edu.mit.media.funf.storage.BundleSerializer;
-import edu.ucla.nesl.mca.classifier.Classifier;
-import edu.ucla.nesl.mca.classifier.ClassifierBuilder;
+import edu.ucla.nesl.mca.classifier.*;
 
 public class MainService extends ConfiguredPipeline  {
-	private Classifier classifier;
+	private DecisionTree classifier;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -37,12 +36,15 @@ public class MainService extends ConfiguredPipeline  {
         //Get the text file
         File file = new File(sdcard,"mlapi/JSON_Test.txt");
         try {
-			classifier = ClassifierBuilder.BuildFromFile(file);
-			recordData(classifier.getJson());
-			Toast.makeText(this, "json data=" + classifier.getJson(), Toast.LENGTH_SHORT).show();
-			
+			classifier = (DecisionTree) ClassifierBuilder.BuildFromFile(file);
+
+			//recordData(classifier.getJson());
+			//Toast.makeText(this, "json data=" + classifier.getJson(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "classifier type=" + classifier.getType(), Toast.LENGTH_LONG).show();
+			Log.i("MainService", "classifier first feature: " + classifier.getInputs().get(1).getName());
+			Log.i("MainService", "classifier second feature: " + classifier.getInputs().get(2).getName());
 			// after build classifier, check each feature and run each probe
-			
+			Log.i("MainService", "decision tree first node: " + classifier.getRootFeature().getName());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

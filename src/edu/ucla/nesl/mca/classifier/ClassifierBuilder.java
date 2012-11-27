@@ -25,28 +25,22 @@ public class ClassifierBuilder {
 	public static Classifier Build(String jsonString) throws IOException {
 		String modelType = Classifier.getJSONModelType(jsonString);
 		Log.i("ClassifierBuilder", "model type: " + modelType);
-		Classifier cl;
+		Classifier cl = null;
 		if (modelType.equals("TREE")) {
 			cl = new DecisionTree();
+			cl.type = modelType;
+			try {
+				cl.parseJSON(jsonString);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				Log.i("ClassifierBuilder", e.toString());
+				e.printStackTrace();
+			}
 		} else {
 			Log.i("ClassifierBuilder",
 					"[ClassifierBuilder] cannot recognize the model type.");
 			throw new IOException(
 					"[ClassifierBuilder] cannot recognize the model type.");
-		}
-
-		try {
-			cl.parseJSON(jsonString);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		cl = new DecisionTree();
-		try {
-			cl.parseJSON(jsonString);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return cl;
 	}

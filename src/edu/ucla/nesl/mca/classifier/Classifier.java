@@ -13,6 +13,7 @@ import edu.ucla.nesl.mca.xdr.XDRSerializable;
 public abstract class Classifier implements XDRSerializable {
 	// Currently only support multiple in, single out
 	protected String name = null;
+	protected String type = null;
 	protected FeaturePool m_inputs = null;
 	protected Feature m_output = null;
 	protected String json = null;
@@ -71,6 +72,7 @@ public abstract class Classifier implements XDRSerializable {
 			this.getModel(model);
 
 		} catch (Exception e) {
+			Log.i("Classifier", e.toString());
 			throw new Exception(e);
 		}
 	}
@@ -85,6 +87,10 @@ public abstract class Classifier implements XDRSerializable {
 
 	public Feature getOutput() {
 		return m_output;
+	}
+	
+	public String getType() {
+		return type;
 	}
 
 	protected abstract void getModel(JSONObject modelObj) throws JSONException;

@@ -1,34 +1,54 @@
 {
         "Name": "Determine Transportation Model Using Mobile Phone",
 		"Feature List" : [
-                		{
-                        	"ID": 8,
-							"Name": "Indoor",
-                        	"SensorID": [1, 2]
-						},
-                		{
-                        	"ID": 1,
-							"Name": "Speed",
-                        	"SensorID": [1, 2],
-                        	"Unit": "mph"
-						},
 						{
-        					"ID": 6,
+        					"ID": 1,
         					"Name": "Variance",
         					"SensorID": 2
-        					"Window":     
+						},
+						{
+        					"ID": 2,
+        					"Name": "Energy Coefficient",
+        					"SensorID": 2        
 						},
 						{
         					"ID": 3,
-        					"Name": "Energy Coefficient",
-        					"SensorID": 2,
-        					"Parameter": [1, 2, 3, 5, 8]
-        
-						},
-						{
         					"Name": "Transportation Mode",
         					"isResult": true,
 							"Result": ["still", "walk", "run", "bike", "driving"]
 						}
-						]
+						],
+		"Model": {
+                "Type": "TREE",
+                "Default Result": "still",
+                "Nodes": [
+                        {
+                			"ID": 1,
+                			"FeatureID": 1,
+                			"Operator": "<=",
+                			"Value": 0.2233,
+                			"ChildNode": [2, 3]
+                        },
+                        {
+                			"ID": 2,
+                			"FeatureID": 2,
+                			"Parameter": 5,
+                			"Operator": "<=",
+                			"Value": 0.123,
+                			"ChildNode": [4, 5]
+                        },
+                        {
+                			"ID": 3,
+                			"Result": "run"
+                        },
+                        {
+                			"ID": 4,
+                			"Result": "still"
+                        },
+                        {
+                			"ID": 5,
+                			"Result": "walk"
+                        }
+                ]
+        }
 }
