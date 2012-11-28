@@ -7,7 +7,9 @@
         android:id="@+id/debugInfoText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
         android:text="@string/hello_world"
         tools:context=".MainActivity" />
 
@@ -17,7 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/debugInfoText"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="76dp"
         android:text="@string/large_text"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -25,9 +26,9 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/classifierInfo"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="29dp"
         android:onClick="test"
         android:text="@string/button" />
 

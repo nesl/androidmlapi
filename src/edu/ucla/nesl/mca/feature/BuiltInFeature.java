@@ -2,11 +2,10 @@
  * Class to provide information about features and sensors
  * Need to be finished
  */
-package edu.ucla.nesl.mca.classifier;
+package edu.ucla.nesl.mca.feature;
 
-import edu.ucla.nesl.mca.feature.Feature;
 
-public class BuiltInClassifier {
+public class BuiltInFeature {
 	
 	public static Feature.OPType getOPType(int id) {
 		if (id == 1 || id == 2) {

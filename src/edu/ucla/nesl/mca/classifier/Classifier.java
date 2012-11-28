@@ -3,9 +3,8 @@ package edu.ucla.nesl.mca.classifier;
 import java.io.IOException;
 
 import org.json.*;
-
 import android.util.Log;
-
+import edu.ucla.nesl.mca.feature.BuiltInFeature;
 import edu.ucla.nesl.mca.feature.Feature;
 import edu.ucla.nesl.mca.feature.FeaturePool;
 import edu.ucla.nesl.mca.xdr.XDRSerializable;
@@ -50,7 +49,7 @@ public abstract class Classifier implements XDRSerializable {
 				JSONObject featureObj = featureList.getJSONObject(i);
 				Feature feature = new Feature();
 				feature.setId(featureObj.getInt("ID"));
-				feature.setOpType(BuiltInClassifier.getOPType(feature.getId()));
+				feature.setOpType(BuiltInFeature.getOPType(feature.getId()));
 				feature.setName(featureObj.getString("Name"));		
 				if (featureObj.has("isResult") && featureObj.getBoolean("isResult")) {
 					feature.setResult(true);

@@ -2,8 +2,10 @@ package edu.ucla.nesl.mca;
 
 import edu.ucla.nesl.mca.R;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -12,16 +14,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 
-public class MainActivity extends Activity implements OnSharedPreferenceChangeListener {
-	TextView text1;
-	
-	
+public class MainActivity extends Activity implements OnSharedPreferenceChangeListener {	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        text1 = (TextView)findViewById(R.id.debugInfoText);
-        text1.setText("I am modified!");
         final Context context = this;
         
         Button button1 = (Button)findViewById(R.id.button1);
@@ -30,13 +27,11 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				text1.setText("Service started!");
 				Intent intent = new Intent(context, MainService.class);
 				startService(intent);
 			}        	
-        }
-        );
-        //MainService.getSystemPrefs(this).registerOnSharedPreferenceChangeListener(this);
+        });
+        registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_MODE));
     }
 
     @Override
@@ -45,10 +40,28 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
         return true;
     }
 
-    public void test(View v) {
-        // Perform action on click
+    private BroadcastReceiver receiver = new BroadcastReceiver() { 
+    	@Override
+		public void onReceive(Context context, Intent intent) { 
+    		String res = intent.getCharSequenceExtra("mode").toString();
+    		TextView mode = (TextView)findViewById(R.id.classifierInfo);
+    		mode.setText(res);
+    		Toast.makeText(context, res, Toast.LENGTH_SHORT).show();
+    	} 
+    }; 
+    
+    @Override
+	protected void onResume() { 
+    	super.onResume(); 
+    	registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_MODE));
     }
-
+    
+    @Override
+    protected void onPause() {
+    	super.onResume(); 
+    	unregisterReceiver(receiver); 
+    }
+    
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {

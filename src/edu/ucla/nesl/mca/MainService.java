@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 import edu.ucla.nesl.mca.classifier.ClassifierBuilder;
 import edu.ucla.nesl.mca.classifier.DecisionTree;
 import edu.ucla.nesl.mca.feature.Feature;
@@ -26,6 +25,7 @@ import edu.ucla.nesl.mca.feature.SensorProfile;
 public class MainService extends Service implements SensorEventListener {
 	public static final String TAG = "MainService";
 	public static final String MAIN_CONFIG = "main_config";
+	public static final String DISPLAY_MODE = "dispMode";
 	private DecisionTree classifier;
 	private HashSet<Integer> featureManager;
 	public static int count = 0;
@@ -48,15 +48,14 @@ public class MainService extends Service implements SensorEventListener {
 		// We want this service to continue running until it is explicitly
 		// stopped, so return sticky.
 		featureManager = new HashSet<Integer>();
+		// Get the JSON input file
 		File sdcard = Environment.getExternalStorageDirectory();
-
-		// Get the text file
 		File file = new File(sdcard, "mlapi/JSON_Test.txt");
 		try {
 			/* Build the classifier */
 			classifier = (DecisionTree) ClassifierBuilder.BuildFromFile(file);
-			Toast.makeText(this, "classifier type=" + classifier.getType(),
-					Toast.LENGTH_LONG).show();
+//			Toast.makeText(this, "classifier type=" + classifier.getType(),
+//					Toast.LENGTH_LONG).show();
 			Log.i("MainService", "classifier first feature: "
 					+ classifier.getInputs().get(1).getName());
 			Log.i("MainService", "classifier second feature: "
@@ -113,7 +112,7 @@ public class MainService extends Service implements SensorEventListener {
 		accBufferZ[count] = event.values[2];
 		//Log.i("MainService", "Acc data: X " + event.values[0] + " Y " + event.values[1] + " Z " + event.values[2]);
 		count++;
-		if (count == 100) {
+		if (count == 100) {	        
 			/* Start the evaluation of the classifier */
 			Bundle data = new Bundle();
 			data.putDoubleArray("AccX", accBufferX);
@@ -126,8 +125,18 @@ public class MainService extends Service implements SensorEventListener {
 					feature.setData(data);
 				}
 			}
-			classifier.evaluate();
+			Object result = classifier.evaluate();
+//			if (result instanceof String) {
+//				String strRes = (String)result;
+//			}
+//			else if (result instanceof Double) {
+//				Double dbRes = (Double)result;
+//			}
 			
+			Intent intent = new Intent(DISPLAY_MODE);
+			intent.putExtra("mode", result.toString());
+	        sendBroadcast(intent);
+	        
 			count = 0;
 			Arrays.fill(accBufferX, 0);
 			Arrays.fill(accBufferY, 0);

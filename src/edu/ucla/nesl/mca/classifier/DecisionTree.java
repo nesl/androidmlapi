@@ -3,9 +3,7 @@ package edu.ucla.nesl.mca.classifier;
 import java.io.*;
 import java.util.*;
 import org.json.*;
-
 import android.util.Log;
-
 import edu.ucla.nesl.mca.feature.Feature;
 import edu.ucla.nesl.mca.feature.Feature.OPType;
 import edu.ucla.nesl.mca.xdr.XDRDataInput;
@@ -358,7 +356,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 		TreeNode cur = m_root;
 		Log.i("DecisionTree", "root value = " + cur.m_feature.evaluate(cur.m_parameter));
 		while (true) {
-			// do the evaluation, as in desicion tree
+			// do the evaluation in decision tree
 			if (cur.getM_resultType() != null) {
 				if (cur.getM_resultType() == OPType.REAL) {
 					return Double.valueOf(cur.getM_realResult());
