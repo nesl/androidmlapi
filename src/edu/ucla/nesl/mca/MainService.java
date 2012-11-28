@@ -28,6 +28,7 @@ public class MainService extends Service implements SensorEventListener {
 	private DecisionTree classifier;
 	private HashSet<Integer> featureManager;
 	public static int count = 0;
+	public static int windowSize = Integer.MAX_VALUE;
 	private double[] accBufferX, accBufferY, accBufferZ;
 
 	@Override
@@ -62,8 +63,7 @@ public class MainService extends Service implements SensorEventListener {
 					+ classifier.getInputs().get(2).getName());
 			
 			/* After building classifier, check each feature and run each probe (start corresponding sensor manager) */
-			Log.i("MainService", "decision tree first node: "
-					+ classifier.getRootFeature().getName());
+			Log.i("MainService", "decision tree first node: " + classifier.getRootFeature().getName());
 			FeaturePool list = classifier.getInputs();
 			Log.i("MainService", "size=" + list.getM_index().size());
 			for (int index : list.getM_index()) {
@@ -71,6 +71,9 @@ public class MainService extends Service implements SensorEventListener {
 				int sensorID = feature.getSensor();
 				Log.i("MainService", "feature ID=" + feature.getId() + " sensor id=" + sensorID);
 				if (!featureManager.contains(sensorID)) {
+					if (feature.getWindowSize() <= windowSize) {
+						windowSize = feature.getWindowSize();
+					}
 					if (sensorID == SensorProfile.ACCELEROMETER) {
 						featureManager.add(sensorID);
 						accBufferX = new double[100];
@@ -90,6 +93,7 @@ public class MainService extends Service implements SensorEventListener {
 					}
 				}
 			}
+			Log.i("MainService", "windowsize=" + windowSize);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -112,7 +116,7 @@ public class MainService extends Service implements SensorEventListener {
 		accBufferZ[count] = event.values[2];
 		//Log.i("MainService", "Acc data: X " + event.values[0] + " Y " + event.values[1] + " Z " + event.values[2]);
 		count++;
-		if (count == 100) {	        
+		if (count == windowSize) {	        
 			/* Start the evaluation of the classifier */
 			Bundle data = new Bundle();
 			data.putDoubleArray("AccX", accBufferX);
@@ -135,6 +139,5 @@ public class MainService extends Service implements SensorEventListener {
 			Arrays.fill(accBufferY, 0);
 			Arrays.fill(accBufferZ, 0);
 		}
-		
 	}
 }

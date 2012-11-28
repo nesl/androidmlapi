@@ -4,11 +4,13 @@
 						{
         					"ID": 1,
         					"Name": "Variance",
+        					"WindowSize": 100,
         					"SensorID": 2
 						},
 						{
         					"ID": 2,
         					"Name": "Energy Coefficient",
+        					"WindowSize": 100,
         					"SensorID": 2        
 						},
 						{

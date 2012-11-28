@@ -25,11 +25,21 @@ public class Feature {
 	private OPType opType;
 	private double dataValue;
 	private boolean isResult;
+	private int windowSize;
 	private ArrayList<String> dataSet; // only used if NOMINAL
 	private Bundle data;
 
 	public Feature() {
 		dataSet = new ArrayList<String>();
+		windowSize = 100;
+	}
+	
+	public int getWindowSize() {
+		return windowSize;
+	}
+
+	public void setWindowSize(int windowSize) {
+		this.windowSize = windowSize;
 	}
 
 	public boolean isResult() {

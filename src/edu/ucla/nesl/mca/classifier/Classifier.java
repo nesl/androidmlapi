@@ -50,7 +50,10 @@ public abstract class Classifier implements XDRSerializable {
 				Feature feature = new Feature();
 				feature.setId(featureObj.getInt("ID"));
 				feature.setOpType(BuiltInFeature.getOPType(feature.getId()));
-				feature.setName(featureObj.getString("Name"));		
+				feature.setName(featureObj.getString("Name"));
+				if (featureObj.has("WindowSize")) {
+					feature.setWindowSize(featureObj.getInt("WindowSize"));
+				}
 				if (featureObj.has("isResult") && featureObj.getBoolean("isResult")) {
 					feature.setResult(true);
 					JSONArray res = featureObj.getJSONArray("Result");
