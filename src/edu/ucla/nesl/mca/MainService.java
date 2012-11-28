@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +24,7 @@ import edu.ucla.nesl.mca.feature.SensorProfile;
 public class MainService extends Service implements SensorEventListener {
 	public static final String TAG = "MainService";
 	public static final String MAIN_CONFIG = "main_config";
-	public static final String DISPLAY_MODE = "dispMode";
+	public static final String DISPLAY_RESULT = "dispResult";
 	private DecisionTree classifier;
 	private HashSet<Integer> featureManager;
 	public static int count = 0;
@@ -47,10 +46,11 @@ public class MainService extends Service implements SensorEventListener {
 		Log.i("MainService", "Received start id " + startId + ": " + intent);
 		// We want this service to continue running until it is explicitly
 		// stopped, so return sticky.
+		String fileName = intent.getExtras().getString("JSONFile");
 		featureManager = new HashSet<Integer>();
 		// Get the JSON input file
 		File sdcard = Environment.getExternalStorageDirectory();
-		File file = new File(sdcard, "mlapi/JSON_Test.txt");
+		File file = new File(sdcard, fileName);
 		try {
 			/* Build the classifier */
 			classifier = (DecisionTree) ClassifierBuilder.BuildFromFile(file);
@@ -125,15 +125,8 @@ public class MainService extends Service implements SensorEventListener {
 					feature.setData(data);
 				}
 			}
-			Object result = classifier.evaluate();
-//			if (result instanceof String) {
-//				String strRes = (String)result;
-//			}
-//			else if (result instanceof Double) {
-//				Double dbRes = (Double)result;
-//			}
-			
-			Intent intent = new Intent(DISPLAY_MODE);
+			Object result = classifier.evaluate();			
+			Intent intent = new Intent(DISPLAY_RESULT);
 			intent.putExtra("mode", result.toString());
 	        sendBroadcast(intent);
 	        

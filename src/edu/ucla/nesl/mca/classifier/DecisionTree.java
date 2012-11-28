@@ -266,7 +266,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
         JSONArray nodeList = modelObj.getJSONArray("Nodes");
         TreeNode[] nodeArray = new TreeNode[nodeList.length()];
         HashMap<Integer, TreeNode> nodeDict = new HashMap<Integer, TreeNode>();
-        
+        Log.i("DecisionTree", "node length=" + nodeList.length());
         // Read and build all the tree nodes
         for (int i = 0; i < nodeList.length(); i++) {
             nodeArray[i] = new TreeNode(nodeList.getJSONObject(i), this);

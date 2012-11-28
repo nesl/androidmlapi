@@ -28,10 +28,11 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				Intent intent = new Intent(context, MainService.class);
+				intent.putExtra("JSONFile", "mlapi/JSON_IndoorTest.txt");
 				startService(intent);
 			}        	
         });
-        registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_MODE));
+        registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_RESULT));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
     @Override
 	protected void onResume() { 
     	super.onResume(); 
-    	registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_MODE));
+    	registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_RESULT));
     }
     
     @Override
