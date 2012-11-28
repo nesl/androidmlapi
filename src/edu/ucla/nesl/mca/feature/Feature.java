@@ -2,6 +2,8 @@ package edu.ucla.nesl.mca.feature;
 
 import java.util.ArrayList;
 
+import android.os.Bundle;
+
 
 public class Feature {
     public enum OPType {
@@ -17,13 +19,14 @@ public class Feature {
         }
     }
     
-    public int id;
-    public String name;
-    public int sensor;
-    public OPType opType;
-    public double dataValue;
-    public boolean isResult;
-    public ArrayList<String> dataSet;   // only used if NOMINAL
+    private int id;
+    private String name;
+    private int sensor;
+    private OPType opType;
+    private double dataValue;
+    private boolean isResult;
+    private ArrayList<String> dataSet;   // only used if NOMINAL
+    private Bundle data;
     
     public Feature() {
     	dataSet = new ArrayList<String>();
@@ -72,9 +75,25 @@ public class Feature {
 	public void addMembership(String mem) {
 		dataSet.add(mem);
 	}
+
+	public double getDataValue() {
+		return dataValue;
+	}
+
+	public void setDataValue(double dataValue) {
+		this.dataValue = dataValue;
+	}
+
+	public Bundle getData() {
+		return data;
+	}
+
+	public void setData(Bundle data) {
+		this.data = data;
+	}
 	
-	public double evaluate(String type, double value) {
-		
+	public double evaluate(double parameter) {
+		// compute the current value using parameter
 		return 0.0;
 	}
 }

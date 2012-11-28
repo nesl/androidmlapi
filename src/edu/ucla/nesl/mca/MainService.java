@@ -1,102 +1,124 @@
 package edu.ucla.nesl.mca;
 
-import static edu.mit.media.funf.AsyncSharedPrefs.async;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
-import edu.mit.media.funf.configured.ConfiguredPipeline;
-import edu.mit.media.funf.storage.BundleSerializer;
-import edu.ucla.nesl.mca.classifier.*;
+import edu.ucla.nesl.mca.classifier.ClassifierBuilder;
+import edu.ucla.nesl.mca.classifier.DecisionTree;
+import edu.ucla.nesl.mca.feature.Feature;
+import edu.ucla.nesl.mca.feature.FeaturePool;
+import edu.ucla.nesl.mca.feature.SensorProfile;
 
-public class MainService extends ConfiguredPipeline  {
+public class MainService extends Service implements SensorEventListener {
+	public static final String TAG = "MainService";
+	public static final String MAIN_CONFIG = "main_config";
 	private DecisionTree classifier;
+	private HashSet<Integer> featureManager;
+	public static int count = 0;
+
+	@Override
+	public void onCreate() {
+
+	}
 
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("MainService", "Received start id " + startId + ": " + intent);
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-        File sdcard = Environment.getExternalStorageDirectory();
-        
-        //Get the text file
-        File file = new File(sdcard,"mlapi/JSON_Test.txt");
-        try {
-			classifier = (DecisionTree) ClassifierBuilder.BuildFromFile(file);
 
-			//recordData(classifier.getJson());
-			//Toast.makeText(this, "json data=" + classifier.getJson(), Toast.LENGTH_SHORT).show();
-			Toast.makeText(this, "classifier type=" + classifier.getType(), Toast.LENGTH_LONG).show();
-			Log.i("MainService", "classifier first feature: " + classifier.getInputs().get(1).getName());
-			Log.i("MainService", "classifier second feature: " + classifier.getInputs().get(2).getName());
-			// after build classifier, check each feature and run each probe
-			Log.i("MainService", "decision tree first node: " + classifier.getRootFeature().getName());
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		Log.i("MainService", "Received start id " + startId + ": " + intent);
+		// We want this service to continue running until it is explicitly
+		// stopped, so return sticky.
+		featureManager = new HashSet<Integer>();
+		File sdcard = Environment.getExternalStorageDirectory();
+
+		// Get the text file
+		File file = new File(sdcard, "mlapi/JSON_Test.txt");
+		try {
+			/* Build the classifier */
+			classifier = (DecisionTree) ClassifierBuilder.BuildFromFile(file);
+			Toast.makeText(this, "classifier type=" + classifier.getType(),
+					Toast.LENGTH_LONG).show();
+			Log.i("MainService", "classifier first feature: "
+					+ classifier.getInputs().get(1).getName());
+			Log.i("MainService", "classifier second feature: "
+					+ classifier.getInputs().get(2).getName());
+			
+			/* After building classifier, check each feature and run each probe (start corresponding sensor manager) */
+			Log.i("MainService", "decision tree first node: "
+					+ classifier.getRootFeature().getName());
+			FeaturePool list = classifier.getInputs();
+			for (int index : list.getM_index()) {
+				Feature feature = list.getFeature(index);
+				int sensorID = feature.getSensor();
+				if (!featureManager.contains(sensorID)) {
+					if (sensorID == SensorProfile.ACCELEROMETER) {
+						featureManager.add(sensorID);
+						SensorManager manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+						Sensor accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+						if (!manager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
+							Log.i("MainService", "cannot register");
+						}
+					}
+					else if (sensorID == SensorProfile.GPS) {
+						
+					}
+					else {
+						
+					}
+				}
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
-        clearData();
-        
-        return START_STICKY;
-    }
-    
-    public void clearData() {
-    	SharedPreferences.Editor editor = getSystemPrefs().edit();
-    	editor.clear();
-    	editor.commit();
-    }
-    
-    public void recordData(String data) {
-    	SharedPreferences.Editor editor = getSystemPrefs().edit();
-    	editor.putString("JSON_TEST", data);
-    	boolean flag = editor.commit();
-    	
-    	Log.i("MainService", "Commit success? " + flag + " size=" + getSystemPrefs().getAll().size());
-    }
-    
-    public static String getClassifierInfo(Context context) {
-    	Log.i("MainService", "get method called size=" + getSystemPrefs(context).getAll().size());
-    	return getSystemPrefs(context).getString("JSON_TEST", "abc");
-    }
-    
-	@Override
-	public void onDataReceived(Bundle data) {
-		super.onDataReceived(data);
-		// let the classifier to re-evaluate
-	}
-	
-	@Override
-    public void onCreate() {
-		
+
+		return START_STICKY;
 	}
 
 	@Override
-	public BundleSerializer getBundleSerializer() {
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		// TODO Auto-generated method stub
-		return null;
+
 	}
-	
+
 	@Override
-	public SharedPreferences getSystemPrefs() {
-		return getSystemPrefs(this);
-	}
-	
-	public static SharedPreferences getSystemPrefs(Context context) {
-		return async(context.getSharedPreferences(MainService.class.getName() + "_system", MODE_PRIVATE));
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+		count++;
+		if (count == 100) {
+			/* Start the evaluation of the classifier */
+			count = 0;
+			Log.i("MainService", "Acc data: X " + event.values[0] + " Y " + event.values[1] + " Z " + event.values[2]);
+			Bundle data = new Bundle();
+			data.putDouble("AccX", event.values[0]);
+			data.putDouble("AccY", event.values[1]);
+			data.putDouble("AccZ", event.values[2]);
+			FeaturePool list = classifier.getInputs();
+			for (int index : list.getM_index()) {
+				Feature feature = list.getFeature(index);
+				if (feature.getSensor() == SensorProfile.ACCELEROMETER) {
+					feature.setData(data);
+				}
+			}
+			classifier.evaluate();
+		}
+		
 	}
 }

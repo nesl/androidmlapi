@@ -1,12 +1,12 @@
 package edu.ucla.nesl.mca;
 
+import edu.ucla.nesl.mca.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,7 +36,7 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 			}        	
         }
         );
-        MainService.getSystemPrefs(this).registerOnSharedPreferenceChangeListener(this);
+        //MainService.getSystemPrefs(this).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -53,14 +53,14 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 		// TODO Auto-generated method stub
-		Log.i("MainActivity", "key=" + key);
-		TextView info = (TextView)findViewById(R.id.classifierInfo);
-		
-		if (key.equals("JSON_TEST")) {
-			String str = MainService.getClassifierInfo(this);
-			String str1 = sharedPreferences.getString(key, "test");
-			Log.i("MainActivity", "length=" + str.length() + " content=" + str + "content1=" + str1);
-			info.setText(str);
-		}
+//		Log.i("MainActivity", "key=" + key);
+//		TextView info = (TextView)findViewById(R.id.classifierInfo);
+//		
+//		if (key.equals("JSON_TEST")) {
+//			String str = MainService.getClassifierInfo(this);
+//			String str1 = sharedPreferences.getString(key, "test");
+//			Log.i("MainActivity", "length=" + str.length() + " content=" + str + "content1=" + str1);
+//			info.setText(str);
+//		}
 	}
 }

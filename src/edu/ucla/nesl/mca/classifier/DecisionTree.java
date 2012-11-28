@@ -178,7 +178,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                 if (nodeObj.has("Parameter")) {
                 	m_parameter = nodeObj.getInt("Parameter");
                 }
-                m_type = m_feature.opType;
+                m_type = m_feature.getOpType();
                 if (m_type == OPType.REAL) {
                     String op = nodeObj.getString("Operator");
                     for (RealOperator o : RealOperator.values()) {
@@ -198,7 +198,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                 }
             } 
             else if (nodeObj.has("Result")) {
-                m_resultType = parent.getOutput().opType;
+                m_resultType = parent.getOutput().getOpType();
                 if (m_resultType == OPType.REAL) {
                     m_realResult = nodeObj.getDouble("Result");
                 }
@@ -352,4 +352,15 @@ public class DecisionTree extends Classifier implements XDRSerializable {
             }
         }
     }
+
+	@Override
+	public Object evaluate() {
+		// TODO Auto-generated method stub
+		TreeNode cur = m_root;
+		while (true) {
+			// do the evaluation, as in desicion tree
+			break;
+		}
+		return null;
+	}
 }

@@ -1,6 +1,7 @@
 package edu.ucla.nesl.mca.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import edu.ucla.nesl.mca.xdr.XDRDataInput;
@@ -14,23 +15,34 @@ public class FeaturePool implements XDRSerializable{
      */
     private HashMap<String, Integer> m_nameMap ;
     private HashMap<Integer, Feature> m_features;
+    private ArrayList<Integer> m_index;
+    
+    // we should add some data structure to map features to sensors, and feature to names
     
     public FeaturePool() {
     	m_nameMap = new HashMap<String, Integer>();
     	m_features = new HashMap<Integer, Feature>();
+    	m_index = new ArrayList<Integer>();
     }
     
     public void addFeature(Feature newFeature) {
-    	m_features.put(newFeature.id, newFeature);
+    	m_features.put(newFeature.getId(), newFeature);
+    	m_index.add(newFeature.getId());
     }
     
     public Feature getFeature(int id) {
     	return m_features.get(id);
     }
-    
-    // Delete Feature may cause nameMap index error, not implemented
-    
-    public Feature get(Integer id) {
+        
+    public ArrayList<Integer> getM_index() {
+		return m_index;
+	}
+
+	public void setM_index(ArrayList<Integer> m_index) {
+		this.m_index = m_index;
+	}
+
+	public Feature get(Integer id) {
         return m_features.get(id);
     }
     
@@ -63,7 +75,7 @@ public class FeaturePool implements XDRSerializable{
     }
     
     public boolean contains(Feature f) {
-        return contains(f.id);
+        return contains(f.getId());
     }
 
     /**
@@ -77,12 +89,12 @@ public class FeaturePool implements XDRSerializable{
     // 
     // Return the index on success or exists
     public Integer add(Feature newFeature) {
-        Integer id = getFeatureID(newFeature.name);
+        Integer id = getFeatureID(newFeature.getName());
         
         if (id == null) {
-            m_features.put(newFeature.id, newFeature);
-            m_nameMap.put(newFeature.name, newFeature.id);
-            return newFeature.id;
+            m_features.put(newFeature.getId(), newFeature);
+            m_nameMap.put(newFeature.getName(), newFeature.getId());
+            return newFeature.getId();
         }
         else {
             Feature oldFeature = get(id);
