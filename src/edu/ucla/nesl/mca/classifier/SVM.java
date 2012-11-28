@@ -30,4 +30,10 @@ public class SVM extends Classifier implements XDRSerializable {
         
     }
 
+	@Override
+	public Object evaluate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

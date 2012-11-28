@@ -346,7 +346,6 @@ public class DecisionTree extends Classifier implements XDRSerializable {
                 for (int j = 0; j < children.length; j++) {
                     //System.out.print(children[j] + " ");
                     node.m_childNodes.add(map.get(children[j]));
-
                 }
                 //System.out.println();
             }
@@ -357,10 +356,32 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 	public Object evaluate() {
 		// TODO Auto-generated method stub
 		TreeNode cur = m_root;
+		Log.i("DecisionTree", "root value = " + cur.m_feature.evaluate(cur.m_parameter));
 		while (true) {
 			// do the evaluation, as in desicion tree
-			break;
+			if (cur.getM_resultType() != null) {
+				if (cur.getM_resultType() == OPType.REAL) {
+					return Double.valueOf(cur.getM_realResult());
+				}
+				if (cur.getM_resultType() == OPType.NOMINAL) {
+					Log.i("DecisionTreeEvaluate", "Reach leaf node, result=" + cur.getM_nominalResult());
+					return new String(cur.getM_nominalResult());
+				}
+			}
+			else {
+				if (cur.getM_type() == OPType.REAL) {
+					double var = (Double)cur.m_feature.evaluate(cur.m_parameter);
+					Log.i("DecisionTreeEvaluate", "value=" + var + " threshold=" + cur.getM_realThes());
+					if (cur.getM_realOp().evaluate(var, cur.getM_realThes())) {
+						Log.i("DecisionTreeEvaluate", "go to left child");
+						cur = cur.getM_childNodes().get(0);
+					}
+					else {
+						Log.i("DecisionTreeEvaluate", "go to right child");
+						cur = cur.getM_childNodes().get(1);
+					}
+				}
+			}
 		}
-		return null;
 	}
 }

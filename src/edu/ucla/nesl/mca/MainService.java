@@ -2,6 +2,7 @@ package edu.ucla.nesl.mca;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 
 import android.app.Service;
@@ -28,6 +29,7 @@ public class MainService extends Service implements SensorEventListener {
 	private DecisionTree classifier;
 	private HashSet<Integer> featureManager;
 	public static int count = 0;
+	private double[] accBufferX, accBufferY, accBufferZ;
 
 	@Override
 	public void onCreate() {
@@ -64,12 +66,17 @@ public class MainService extends Service implements SensorEventListener {
 			Log.i("MainService", "decision tree first node: "
 					+ classifier.getRootFeature().getName());
 			FeaturePool list = classifier.getInputs();
+			Log.i("MainService", "size=" + list.getM_index().size());
 			for (int index : list.getM_index()) {
 				Feature feature = list.getFeature(index);
 				int sensorID = feature.getSensor();
+				Log.i("MainService", "feature ID=" + feature.getId() + " sensor id=" + sensorID);
 				if (!featureManager.contains(sensorID)) {
 					if (sensorID == SensorProfile.ACCELEROMETER) {
 						featureManager.add(sensorID);
+						accBufferX = new double[100];
+						accBufferY = new double[100];
+						accBufferZ = new double[100];
 						SensorManager manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 						Sensor accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 						if (!manager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
@@ -101,15 +108,17 @@ public class MainService extends Service implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// TODO Auto-generated method stub
+		accBufferX[count] = event.values[0];
+		accBufferY[count] = event.values[1];
+		accBufferZ[count] = event.values[2];
+		//Log.i("MainService", "Acc data: X " + event.values[0] + " Y " + event.values[1] + " Z " + event.values[2]);
 		count++;
 		if (count == 100) {
 			/* Start the evaluation of the classifier */
-			count = 0;
-			Log.i("MainService", "Acc data: X " + event.values[0] + " Y " + event.values[1] + " Z " + event.values[2]);
 			Bundle data = new Bundle();
-			data.putDouble("AccX", event.values[0]);
-			data.putDouble("AccY", event.values[1]);
-			data.putDouble("AccZ", event.values[2]);
+			data.putDoubleArray("AccX", accBufferX);
+			data.putDoubleArray("AccY", accBufferY);
+			data.putDoubleArray("AccZ", accBufferZ);
 			FeaturePool list = classifier.getInputs();
 			for (int index : list.getM_index()) {
 				Feature feature = list.getFeature(index);
@@ -118,6 +127,11 @@ public class MainService extends Service implements SensorEventListener {
 				}
 			}
 			classifier.evaluate();
+			
+			count = 0;
+			Arrays.fill(accBufferX, 0);
+			Arrays.fill(accBufferY, 0);
+			Arrays.fill(accBufferZ, 0);
 		}
 		
 	}
