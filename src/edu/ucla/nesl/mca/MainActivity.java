@@ -27,9 +27,14 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				Intent intent = new Intent(context, MainService.class);
-				intent.putExtra("JSONFile", "mlapi/JSON_IndoorTest.txt");
-				startService(intent);
+//				Intent intent = new Intent(context, MainService.class);
+//				intent.putExtra("JSONFile", "mlapi/JSON_IndoorTest.txt");
+//				startService(intent);
+				Intent runOnceIntent = new Intent(context, MainService.class);
+				runOnceIntent.setAction(MainService.START_CLASSIFICATION);
+				runOnceIntent.putExtra("JSONFile", "mlapi/JSON_IndoorTest.txt");
+				//runOnceIntent.putExtra(MainService.RUN_ONCE_PROBE_NAME, AccelerometerSensorProbe.class.getName());
+				startService(runOnceIntent);
 			}        	
         });
         registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_RESULT));
@@ -67,14 +72,5 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 		// TODO Auto-generated method stub
-//		Log.i("MainActivity", "key=" + key);
-//		TextView info = (TextView)findViewById(R.id.classifierInfo);
-//		
-//		if (key.equals("JSON_TEST")) {
-//			String str = MainService.getClassifierInfo(this);
-//			String str1 = sharedPreferences.getString(key, "test");
-//			Log.i("MainActivity", "length=" + str.length() + " content=" + str + "content1=" + str1);
-//			info.setText(str);
-//		}
 	}
 }
