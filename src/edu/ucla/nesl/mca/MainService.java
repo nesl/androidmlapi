@@ -150,6 +150,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.json.JSONException;
@@ -164,7 +165,6 @@ import edu.mit.media.funf.IOUtils;
 import edu.mit.media.funf.configured.ConfiguredPipeline;
 import edu.mit.media.funf.configured.FunfConfig;
 import edu.mit.media.funf.probe.Probe;
-import edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe;
 import edu.mit.media.funf.storage.BundleSerializer;
 import edu.ucla.nesl.mca.classifier.ClassifierBuilder;
 import edu.ucla.nesl.mca.classifier.DecisionTree;
@@ -181,6 +181,7 @@ public class MainService extends ConfiguredPipeline {
 	public static final String DISPLAY_RESULT = "dispResult";
 	private DecisionTree classifier;
 	private HashSet<Integer> featureManager;
+	private HashMap<Feature, Feature> triggerMap;
 	public static int count = 0;
 	public static int windowSize = Integer.MAX_VALUE;
 	private double[] accBufferX, accBufferY, accBufferZ;
@@ -195,6 +196,7 @@ public class MainService extends ConfiguredPipeline {
 			
 			String fileName = intent.getExtras().getString("JSONFile");
 			featureManager = new HashSet<Integer>();
+			triggerMap = new HashMap<Feature, Feature>();
 			// Get the JSON input file
 			File sdcard = Environment.getExternalStorageDirectory();
 			File file = new File(sdcard, fileName);
@@ -212,32 +214,44 @@ public class MainService extends ConfiguredPipeline {
 				Log.i("MainService", "decision tree first node: " + classifier.getRootFeature().getName());
 				FeaturePool list = classifier.getInputs();
 				Log.i("MainService", "size=" + list.getM_index().size());
+
 				for (int index : list.getM_index()) {
 					Feature feature = list.getFeature(index);
 					int sensorID = feature.getSensor();
-					Log.i("MainService", "feature ID=" + feature.getId() + " sensor id=" + sensorID);
+					Log.i("MainService", "feature ID=" + feature.getId() + " sensor id=" + sensorID + " trigger?" + (feature.getTrigger() != null));
 					if (!featureManager.contains(sensorID)) {
-						if (feature.getWindowSize() <= windowSize) {
-							windowSize = feature.getWindowSize();
-						}
-						if (sensorID == SensorProfile.ACCELEROMETER) {
-							featureManager.add(sensorID);
-							accBufferX = new double[100];
-							accBufferY = new double[100];
-							accBufferZ = new double[100];
-							runProbeOnceNow(AccelerometerSensorProbe.class.getName());
-//							SensorManager manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-//							Sensor accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-//							if (!manager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)) {
-//								Log.i("MainService", "cannot register");
-//							}
-						}
-						else if (sensorID == SensorProfile.GPS) {
-							
+						if (feature.getTrigger() != null) {
+							int tID = feature.getTriggerFeature();
+							Feature tFeature = null;
+							for (int j : list.getM_index()) {
+								if (list.getFeature(j).getId() == tID){
+									tFeature = list.getFeature(j);
+								}
+							}
+							triggerMap.put(tFeature, feature);
+							Log.i("MainService", sensorID + " not started");
+							Log.i("MainService", tFeature.getName() + " can trigger " + feature.getName());
 						}
 						else {
-							
+							if (feature.getWindowSize() <= windowSize) {
+								windowSize = feature.getWindowSize();
+							}
+							if (sensorID == SensorProfile.ACCELEROMETER) {
+								featureManager.add(sensorID);
+								Log.i("MainService", sensorID + " started");
+								accBufferX = new double[100];
+								accBufferY = new double[100];
+								accBufferZ = new double[100];
+								//runProbeOnceNow(AccelerometerSensorProbe.class.getName());
+							}
+							else if (sensorID == SensorProfile.GPS) {
+								
+							}
+							else {
+								
+							}
 						}
+						
 					}
 				}
 				Log.i("MainService", "windowsize=" + windowSize);
@@ -266,34 +280,34 @@ public class MainService extends ConfiguredPipeline {
 		float[] dz = data.getFloatArray("Z");
 		Log.i("MainService", "Acc data: x=" + dx[0] +" y=" + dy[0] + " z=" + dz[0]);
 		
-		accBufferX[count] = dx[0];
-		accBufferY[count] = dy[0];
-		accBufferZ[count] = dx[0];
-		count++;
-		
-		if (count == windowSize) {	        
-			/* Start the evaluation of the classifier */
-			Bundle resData = new Bundle();
-			resData.putDoubleArray("AccX", accBufferX);
-			resData.putDoubleArray("AccY", accBufferY);
-			resData.putDoubleArray("AccZ", accBufferZ);
-			FeaturePool list = classifier.getInputs();
-			for (int index : list.getM_index()) {
-				Feature feature = list.getFeature(index);
-				if (feature.getSensor() == SensorProfile.ACCELEROMETER) {
-					feature.setData(resData);
-				}
-			}
-			Object result = classifier.evaluate();			
-			Intent intent = new Intent(DISPLAY_RESULT);
-			intent.putExtra("mode", result.toString());
-	        sendBroadcast(intent);
-	        
-			count = 0;
-			Arrays.fill(accBufferX, 0);
-			Arrays.fill(accBufferY, 0);
-			Arrays.fill(accBufferZ, 0);
-		}
+//		accBufferX[count] = dx[0];
+//		accBufferY[count] = dy[0];
+//		accBufferZ[count] = dx[0];
+//		count++;
+//		
+//		if (count == windowSize) {	        
+//			/* Start the evaluation of the classifier */
+//			Bundle resData = new Bundle();
+//			resData.putDoubleArray("AccX", accBufferX);
+//			resData.putDoubleArray("AccY", accBufferY);
+//			resData.putDoubleArray("AccZ", accBufferZ);
+//			FeaturePool list = classifier.getInputs();
+//			for (int index : list.getM_index()) {
+//				Feature feature = list.getFeature(index);
+//				if (feature.getSensor() == SensorProfile.ACCELEROMETER) {
+//					feature.setData(resData);
+//				}
+//			}
+//			Object result = classifier.evaluate();			
+//			Intent intent = new Intent(DISPLAY_RESULT);
+//			intent.putExtra("mode", result.toString());
+//	        sendBroadcast(intent);
+//	        
+//			count = 0;
+//			Arrays.fill(accBufferX, 0);
+//			Arrays.fill(accBufferY, 0);
+//			Arrays.fill(accBufferZ, 0);
+//		}
 	}
 	
 	@Override

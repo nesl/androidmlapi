@@ -27,6 +27,7 @@
             </intent-filter>
         </activity>
         <service android:name="edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe"></service>
+<!--         <service android:name="edu.mit.media.funf.probe.builtin.LocationProbe"></service> -->
         <service android:name=".MainService"></service>
         <service android:name="edu.mit.media.funf.storage.NameValueDatabaseService"></service>
         <receiver android:name=".LauncherReceiver" android:enabled="true">

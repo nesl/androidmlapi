@@ -1,8 +1,13 @@
 package edu.ucla.nesl.mca.classifier;
 
-import java.io.*;
-import java.util.*;
-import org.json.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.util.Log;
 import edu.ucla.nesl.mca.feature.Feature;
 import edu.ucla.nesl.mca.feature.Feature.OPType;
@@ -12,40 +17,40 @@ import edu.ucla.nesl.mca.xdr.XDRSerializable;
 
 public class DecisionTree extends Classifier implements XDRSerializable {
 
-    protected enum RealOperator {
-          LESSTHAN("<")  {
-              boolean evaluate(double featureValue, double threshold) {
-                  return featureValue < threshold;
-              }
-          },
-          LESSOREQUAL("<=") {
-              boolean evaluate(double featureValue, double threshold) {
-                  return featureValue <= threshold;
-              }
-          },
-          GREATERTHAN(">") {
-              boolean evaluate(double featureValue, double threshold) {
-                  return featureValue > threshold;
-              }
-          },
-          GREATEROREQUAL(">=") {
-              boolean evaluate(double featureValue, double threshold) {
-                  return featureValue >= threshold;
-              }
-          };
-          
-          abstract boolean evaluate(double featureValue, double threshold);
-          
-          private final String m_stringVal;
-          
-          RealOperator(String name) {
-              m_stringVal = name;
-          }
-                
-          public String toString() {
-              return m_stringVal;
-          }
-    }
+//    protected enum RealOperator {
+//          LESSTHAN("<")  {
+//              boolean evaluate(double featureValue, double threshold) {
+//                  return featureValue < threshold;
+//              }
+//          },
+//          LESSOREQUAL("<=") {
+//              boolean evaluate(double featureValue, double threshold) {
+//                  return featureValue <= threshold;
+//              }
+//          },
+//          GREATERTHAN(">") {
+//              boolean evaluate(double featureValue, double threshold) {
+//                  return featureValue > threshold;
+//              }
+//          },
+//          GREATEROREQUAL(">=") {
+//              boolean evaluate(double featureValue, double threshold) {
+//                  return featureValue >= threshold;
+//              }
+//          };
+//          
+//          abstract boolean evaluate(double featureValue, double threshold);
+//          
+//          private final String m_stringVal;
+//          
+//          RealOperator(String name) {
+//              m_stringVal = name;
+//          }
+//                
+//          public String toString() {
+//              return m_stringVal;
+//          }
+//    }
 
     class TreeNode implements XDRSerializable {
         
@@ -363,7 +368,14 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 				}
 				if (cur.getM_resultType() == OPType.NOMINAL) {
 					Log.i("DecisionTreeEvaluate", "Reach leaf node, result=" + cur.getM_nominalResult());
-					return new String(cur.getM_nominalResult());
+					String res = new String(cur.getM_nominalResult());
+					String features = "";
+					for (Feature fea:LogUtil.features) {
+						features = features + fea.getName() + "(" + fea.getParameter() + ")=" + fea.getDataValue() + "; ";
+					}
+					Log.i("DecisionTreeEvaluate", "Result done: " + features + res);
+					LogUtil.features.clear();
+					return res;
 				}
 			}
 			else {
@@ -378,6 +390,10 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 						Log.i("DecisionTreeEvaluate", "go to right child");
 						cur = cur.getM_childNodes().get(1);
 					}
+				}
+				else if (cur.getM_type() == OPType.NOMINAL) {
+					int sel = (int) Math.round((Double)cur.m_feature.evaluate(cur.m_parameter));
+					cur = cur.getM_childNodes().get(sel);
 				}
 			}
 		}

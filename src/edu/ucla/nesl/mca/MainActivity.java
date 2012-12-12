@@ -32,7 +32,7 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 //				startService(intent);
 				Intent runOnceIntent = new Intent(context, MainService.class);
 				runOnceIntent.setAction(MainService.START_CLASSIFICATION);
-				runOnceIntent.putExtra("JSONFile", "mlapi/JSON_IndoorTest.txt");
+				runOnceIntent.putExtra("JSONFile", "mlapi/JSON_GPSTriggerTest.txt");
 				//runOnceIntent.putExtra(MainService.RUN_ONCE_PROBE_NAME, AccelerometerSensorProbe.class.getName());
 				startService(runOnceIntent);
 			}        	

@@ -3,6 +3,8 @@ package edu.ucla.nesl.mca.feature;
 import java.util.ArrayList;
 
 import android.os.Bundle;
+import edu.ucla.nesl.mca.classifier.LogUtil;
+import edu.ucla.nesl.mca.classifier.RealOperator;
 
 public class Feature {
 	public enum OPType {
@@ -18,6 +20,42 @@ public class Feature {
 			return this.num;
 		}
 	}
+	
+	class Trigger {
+		private int feature;
+		private RealOperator realOp;
+		private double threshold;
+		
+		public int getFeature() {
+			return feature;
+		}
+		public void setSensor(int feature) {
+			this.feature = feature;
+		}
+		public RealOperator getRealOp() {
+			return realOp;
+		}
+		public void setRealOp(RealOperator realOp) {
+			this.realOp = realOp;
+		}
+		public double getThreshold() {
+			return threshold;
+		}
+		public void setThreshold(double threshold) {
+			this.threshold = threshold;
+		}
+		public Trigger(int sensor, String operator, double threshold) {
+			super();
+			this.feature = sensor;
+			for (RealOperator o : RealOperator.values()) {
+                if (o.toString().equals(operator)) {
+                	this.realOp = o;
+                    break;
+                  }
+            }
+			this.threshold = threshold;
+		}
+	}
 
 	private int id;
 	private String name;
@@ -28,6 +66,20 @@ public class Feature {
 	private int windowSize;
 	private ArrayList<String> dataSet; // only used if NOMINAL
 	private Bundle data;
+	private int parameter;
+	private Trigger trigger = null;
+	
+	public Trigger getTrigger() {
+		return trigger;
+	}
+
+	public void setTrigger(int feature, String operator, double threshold) {
+		this.trigger = new Trigger(feature, operator, threshold);
+	}
+	
+	public int getTriggerFeature() {
+		return this.trigger.feature;
+	}
 
 	public Feature() {
 		dataSet = new ArrayList<String>();
@@ -151,12 +203,25 @@ public class Feature {
 			v = s / dataSize;
 			
 			if (this.name.equals(SensorProfile.VARIANCE)) {
-				return v;
+				this.dataValue = v;
+				LogUtil.features.add(this);
+				return this.dataValue;
 			}
 			else if (this.name.equals(SensorProfile.ENERGYCOEFFICIENT)) {
-				return a[(int)parameter];
+				this.parameter = (int)parameter;
+				this.dataValue = a[(int)parameter];
+				LogUtil.features.add(this);
+				return this.dataValue;
 			}
 		}
 		return Double.MIN_VALUE;
+	}
+
+	public int getParameter() {
+		return parameter;
+	}
+
+	public void setParameter(int parameter) {
+		this.parameter = parameter;
 	}
 }

@@ -65,7 +65,11 @@ public abstract class Classifier implements XDRSerializable {
 				} 
 				else {
 					feature.setResult(false);
-					feature.setSensor(featureObj.getInt("SensorID"));		
+					feature.setSensor(featureObj.getInt("SensorID"));
+					if (featureObj.has("Trigger")) {
+						JSONObject triggerObj = featureObj.getJSONObject("Trigger");
+						feature.setTrigger(triggerObj.getInt("Feature"), triggerObj.getString("Operation"), triggerObj.getDouble("Threshold"));
+					}
 					//System.out.println(feature.id + " " + feature.name + " " + feature.sensor);
 					m_inputs.addFeature(feature);
 				}
