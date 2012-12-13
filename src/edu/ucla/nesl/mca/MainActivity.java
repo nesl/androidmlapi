@@ -37,7 +37,11 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 				startService(runOnceIntent);
 			}        	
         });
-        registerReceiver(receiver, new IntentFilter(MainService.DISPLAY_RESULT));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MainService.DISPLAY_RESULT);
+        filter.addAction(MainService.UPDATE_DATA);
+        filter.addAction(MainService.UPDATE_LOCATION);
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -49,13 +53,42 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
     private BroadcastReceiver receiver = new BroadcastReceiver() { 
     	@Override
 		public void onReceive(Context context, Intent intent) { 
-    		String res = intent.getCharSequenceExtra("mode").toString();
-    		TextView mode = (TextView)findViewById(R.id.classifierInfo);
-    		mode.setText(res);
-    		String res1 = intent.getCharSequenceExtra("indoor").toString();
-    		TextView indoor = (TextView)findViewById(R.id.TextView02);
-    		indoor.setText(res1);
-    		//Toast.makeText(context, res, Toast.LENGTH_SHORT).show();
+    		if (intent.getAction().equals(MainService.DISPLAY_RESULT)) {
+    			String res = intent.getCharSequenceExtra("mode").toString();
+        		TextView mode = (TextView)findViewById(R.id.classifierInfo);
+        		mode.setText(res);
+        		String res1 = intent.getCharSequenceExtra("indoor").toString();
+        		TextView indoor = (TextView)findViewById(R.id.TextView03);
+        		if (res1.equals("1.0")) {
+        			indoor.setText("Outdoor");
+        		}
+        		else {
+        			indoor.setText("Indoor");
+        		}
+        		
+        		String res2 = intent.getCharSequenceExtra("gps").toString();
+        		TextView gpsStatus= (TextView)findViewById(R.id.TextView02);
+        		gpsStatus.setText(res2);
+    		}
+    		else if (intent.getAction().equals(MainService.UPDATE_DATA)) {
+    			String strX = intent.getStringExtra("x");
+    			String strY = intent.getStringExtra("y");
+    			String strZ = intent.getStringExtra("z");
+    			TextView textX = (TextView)findViewById(R.id.TextView10);
+    			TextView textY = (TextView)findViewById(R.id.TextView11);
+    			TextView textZ = (TextView)findViewById(R.id.TextView12);
+    			textX.setText(strX);
+    			textY.setText(strY);
+    			textZ.setText(strZ);
+    		}
+    		else if (intent.getAction().equals(MainService.UPDATE_LOCATION)) {
+    			String strLa = Double.valueOf(intent.getDoubleExtra("lat", 0.0)).toString();
+    			String strLo = Double.valueOf(intent.getDoubleExtra("lot", 0.0)).toString();
+    			TextView textLa = (TextView)findViewById(R.id.textView2);
+    			TextView textLo = (TextView)findViewById(R.id.TextView06);
+    			textLa.setText(strLa);
+    			textLo.setText(strLo);
+    		}
     	} 
     }; 
     

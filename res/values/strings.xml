@@ -1,10 +1,16 @@
 <resources>
 
     <string name="app_name">MobileContextAwareness</string>
-    <string name="hello_world">Transportation Model:</string>
+    <string name="model_label">Transportation Model:</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Transportation Model</string>
     <string name="button">Start</string>
-    <string name="large_text">None</string>
-
+    <string name="default_value">None</string>
+    <string name="gps_label">GPS Status:</string>
+    <string name="info_text">Indoor/Outdoor:</string>
+    <string name="lat_text">Latitute:</string>
+    <string name="lot_text">Longtitute:</string>
+    <string name="x_text">X-axis:</string>
+	<string name="y_text">Y-axis:</string>
+	<string name="z_text">Z-axis:</string>
 </resources>

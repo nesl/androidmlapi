@@ -230,11 +230,11 @@ public class Feature {
 				return this.dataValue;
 			}
 			else if (this.name.equals(SensorProfile.INDOOR)) {
-				if (!AlgorithmUtil.outdoors) {
-					this.dataValue = 0.0;
+				if (AlgorithmUtil.getOutdoor()) {
+					this.dataValue = 1.0;
 				}
 				else {
-					this.dataValue = 1.0;
+					this.dataValue = 0.0;
 				}
 				return this.dataValue;
 			}

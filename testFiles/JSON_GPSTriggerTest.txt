@@ -33,7 +33,7 @@
         					"TriggerOff": {
         						"Feature": 0,
         						"Value": "still",
-        						"Duration": 2
+        						"Duration": 20
         					}
 						},
 						{

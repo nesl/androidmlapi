@@ -1,0 +1,65 @@
+12-04 00:55:32.038: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8644245442328724E-4; Variance(0)=1.8644245442328724E-4; Variance(0)=1.8644245442328724E-4; still
+12-04 00:55:34.170: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8511032410578596E-4; Variance(0)=1.8511032410578596E-4; Variance(0)=1.8511032410578596E-4; still
+12-04 00:55:37.283: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8449733894653487E-4; Variance(0)=1.8449733894653487E-4; Variance(0)=1.8449733894653487E-4; still
+12-04 00:55:40.477: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.88546840943187E-4; Variance(0)=1.88546840943187E-4; Variance(0)=1.88546840943187E-4; still
+12-04 00:55:42.589: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8254632965197012E-4; Variance(0)=1.8254632965197012E-4; Variance(0)=1.8254632965197012E-4; still
+12-04 00:55:45.732: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.775992752766015E-4; Variance(0)=1.775992752766015E-4; Variance(0)=1.775992752766015E-4; still
+12-04 00:55:48.936: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.130858585300429E-4; Variance(0)=2.130858585300429E-4; Variance(0)=2.130858585300429E-4; still
+12-04 00:55:51.068: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8702009663923338E-4; Variance(0)=1.8702009663923338E-4; Variance(0)=1.8702009663923338E-4; still
+12-04 00:55:54.221: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9608061964877072E-4; Variance(0)=1.9608061964877072E-4; Variance(0)=1.9608061964877072E-4; still
+12-04 00:55:58.406: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.0634553906378542E-4; Variance(0)=2.0634553906378542E-4; Variance(0)=2.0634553906378542E-4; still
+12-04 00:56:01.479: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9601789199235763E-4; Variance(0)=1.9601789199235763E-4; Variance(0)=1.9601789199235763E-4; still
+12-04 00:56:03.621: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9461743818774844E-4; Variance(0)=1.9461743818774844E-4; Variance(0)=1.9461743818774844E-4; still
+12-04 00:56:07.776: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8798523823111251E-4; Variance(0)=1.8798523823111251E-4; Variance(0)=1.8798523823111251E-4; still
+12-04 00:56:10.969: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9619580318085795E-4; Variance(0)=1.9619580318085795E-4; Variance(0)=1.9619580318085795E-4; still
+12-04 00:56:13.071: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.7077386116659876E-4; Variance(0)=1.7077386116659876E-4; Variance(0)=1.7077386116659876E-4; still
+12-04 00:56:17.306: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8172608355541186E-4; Variance(0)=1.8172608355541186E-4; Variance(0)=1.8172608355541186E-4; still
+12-04 00:56:19.458: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.019645636047660717; Variance(0)=0.019645636047660717; Energy Coefficient(2)=16.807635591624262; Variance(0)=0.019645636047660717; Energy Coefficient(2)=16.807635591624262; walk
+12-04 00:56:22.611: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.037170726413438875; Variance(0)=0.037170726413438875; Energy Coefficient(2)=32.37174513898253; Variance(0)=0.037170726413438875; Energy Coefficient(2)=32.37174513898253; walk
+12-04 00:56:25.755: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.13757543705904843; Variance(0)=0.13757543705904843; Energy Coefficient(3)=88.15623282101342; run
+12-04 00:56:28.928: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.20850555133225446; Variance(0)=0.20850555133225446; Energy Coefficient(3)=123.98321346025932; run
+12-04 00:56:33.063: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.0468384816468377; Variance(0)=0.0468384816468377; Energy Coefficient(2)=16.33108371760767; Variance(0)=0.0468384816468377; Energy Coefficient(2)=16.33108371760767; walk
+12-04 00:56:36.146: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.0055803116345219785; Variance(0)=0.0055803116345219785; Energy Coefficient(2)=2.596670727770359; Variance(0)=0.0055803116345219785; Energy Coefficient(2)=2.596670727770359; Energy Coefficient(2)=2.596670727770359; still
+12-04 00:56:39.299: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.1058906337126986E-4; Variance(0)=2.1058906337126986E-4; Variance(0)=2.1058906337126986E-4; still
+12-04 00:56:56.197: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9149999502231577E-4; Variance(0)=1.9149999502231577E-4; Variance(0)=1.9149999502231577E-4; still
+12-04 00:56:58.310: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.865700088963464E-4; Variance(0)=1.865700088963464E-4; Variance(0)=1.865700088963464E-4; still
+12-04 00:57:01.453: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.0098505339188194E-4; Variance(0)=2.0098505339188194E-4; Variance(0)=2.0098505339188194E-4; still
+12-04 00:57:04.636: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.0414634398307466E-4; Variance(0)=2.0414634398307466E-4; Variance(0)=2.0414634398307466E-4; still
+12-04 00:57:07.790: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.82140280233203E-4; Variance(0)=1.82140280233203E-4; Variance(0)=1.82140280233203E-4; still
+12-04 00:57:11.944: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.0516341314536377E-4; Variance(0)=2.0516341314536377E-4; Variance(0)=2.0516341314536377E-4; still
+12-04 00:57:15.047: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9381457975839653E-4; Variance(0)=1.9381457975839653E-4; Variance(0)=1.9381457975839653E-4; still
+12-04 00:57:18.171: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.03444904990702696; Variance(0)=0.03444904990702696; Energy Coefficient(2)=16.80048653799895; Variance(0)=0.03444904990702696; Energy Coefficient(2)=16.80048653799895; walk
+12-04 00:57:20.283: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.030575075093186212; Variance(0)=0.030575075093186212; Energy Coefficient(2)=19.80772686605428; Variance(0)=0.030575075093186212; Energy Coefficient(2)=19.80772686605428; walk
+12-04 00:57:23.436: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.061882873350735855; Variance(0)=0.061882873350735855; Energy Coefficient(2)=57.62422866874522; Variance(0)=0.061882873350735855; Energy Coefficient(2)=57.62422866874522; walk
+12-04 00:57:27.641: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.05743765753566958; Variance(0)=0.05743765753566958; Energy Coefficient(2)=51.069928862142206; Variance(0)=0.05743765753566958; Energy Coefficient(2)=51.069928862142206; walk
+12-04 00:57:30.784: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.037490762057345924; Variance(0)=0.037490762057345924; Energy Coefficient(2)=29.833306397779893; Variance(0)=0.037490762057345924; Energy Coefficient(2)=29.833306397779893; walk
+12-04 00:57:32.886: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.005940812494153059; Variance(0)=0.005940812494153059; Energy Coefficient(2)=3.0027666422323875; Variance(0)=0.005940812494153059; Energy Coefficient(2)=3.0027666422323875; Energy Coefficient(2)=3.0027666422323875; walk
+12-04 00:57:36.050: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.24221098590063847; Variance(0)=0.24221098590063847; Energy Coefficient(3)=123.36811462606602; run
+12-04 00:57:40.244: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.31970321132664015; Variance(0)=0.31970321132664015; Energy Coefficient(3)=179.29177119754604; run
+12-04 00:57:43.368: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.29282715270131326; Variance(0)=0.29282715270131326; Energy Coefficient(3)=190.7221163295353; run
+12-04 00:57:46.561: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.0824439956697019; Variance(0)=0.0824439956697019; Energy Coefficient(2)=35.356333125638685; Variance(0)=0.0824439956697019; Energy Coefficient(2)=35.356333125638685; walk
+12-04 00:57:49.714: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.918862661481267E-4; Variance(0)=1.918862661481267E-4; Variance(0)=1.918862661481267E-4; still
+12-04 00:58:05.271: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.2460102023591152E-4; Variance(0)=2.2460102023591152E-4; Variance(0)=2.2460102023591152E-4; still
+12-04 00:58:08.344: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.0952559585059858E-4; Variance(0)=2.0952559585059858E-4; Variance(0)=2.0952559585059858E-4; still
+12-04 00:58:11.448: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.798121819358227E-4; Variance(0)=1.798121819358227E-4; Variance(0)=1.798121819358227E-4; still
+12-04 00:58:14.581: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.929627481149506E-4; Variance(0)=1.929627481149506E-4; Variance(0)=1.929627481149506E-4; still
+12-04 00:58:17.784: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=2.059722561105478E-4; Variance(0)=2.059722561105478E-4; Variance(0)=2.059722561105478E-4; still
+12-04 00:58:20.948: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9887085363221157E-4; Variance(0)=1.9887085363221157E-4; Variance(0)=1.9887085363221157E-4; still
+12-04 00:58:24.021: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8771435973312416E-4; Variance(0)=1.8771435973312416E-4; Variance(0)=1.8771435973312416E-4; still
+12-04 00:58:27.124: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.9406378732280508E-4; Variance(0)=1.9406378732280508E-4; Variance(0)=1.9406378732280508E-4; still
+12-04 00:58:48.187: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.016405090461268815; Variance(0)=0.016405090461268815; Energy Coefficient(2)=11.006590257720518; Variance(0)=0.016405090461268815; Energy Coefficient(2)=11.006590257720518; walk
+12-04 00:58:52.381: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.026868614173325565; Variance(0)=0.026868614173325565; Energy Coefficient(2)=23.049746479380133; Variance(0)=0.026868614173325565; Energy Coefficient(2)=23.049746479380133; walk
+12-04 00:58:55.445: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.01757667791095219; Variance(0)=0.01757667791095219; Energy Coefficient(2)=11.882444915101871; Variance(0)=0.01757667791095219; Energy Coefficient(2)=11.882444915101871; walk
+12-04 00:58:58.628: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.041942522276771366; Variance(0)=0.041942522276771366; Energy Coefficient(2)=35.85357362398031; Variance(0)=0.041942522276771366; Energy Coefficient(2)=35.85357362398031; walk
+12-04 00:59:02.822: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.023753916656073716; Variance(0)=0.023753916656073716; Energy Coefficient(2)=18.906048143905537; Variance(0)=0.023753916656073716; Energy Coefficient(2)=18.906048143905537; walk
+12-04 00:59:04.925: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.026470911514050836; Variance(0)=0.026470911514050836; Energy Coefficient(2)=20.650315279528286; Variance(0)=0.026470911514050836; Energy Coefficient(2)=20.650315279528286; walk
+12-04 00:59:09.179: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.03747387903277378; Variance(0)=0.03747387903277378; Energy Coefficient(2)=29.744811272898005; Variance(0)=0.03747387903277378; Energy Coefficient(2)=29.744811272898005; walk
+12-04 00:59:12.343: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.02633131173075222; Variance(0)=0.02633131173075222; Energy Coefficient(2)=20.038074411343132; Variance(0)=0.02633131173075222; Energy Coefficient(2)=20.038074411343132; walk
+12-04 00:59:14.445: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.10357597112719832; Variance(0)=0.10357597112719832; Energy Coefficient(2)=65.09233746242126; Variance(0)=0.10357597112719832; Energy Coefficient(2)=65.09233746242126; walk
+12-04 00:59:17.618: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.18862243196431017; Variance(0)=0.18862243196431017; Energy Coefficient(3)=119.93752764934834; run
+12-04 00:59:20.802: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.24969249270319893; Variance(0)=0.24969249270319893; Energy Coefficient(3)=196.3848732302422; run
+12-04 00:59:23.955: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.22614954755967773; Variance(0)=0.22614954755967773; Energy Coefficient(3)=169.63187981291048; run
+12-04 00:59:27.108: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.28649593350880365; Variance(0)=0.28649593350880365; Energy Coefficient(3)=222.04244865976398; run
+12-04 00:59:31.273: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=3.7612547296437545E-4; Variance(0)=3.7612547296437545E-4; Variance(0)=3.7612547296437545E-4; still
+12-04 00:59:34.376: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=1.8604510080712198E-4; Variance(0)=1.8604510080712198E-4; Variance(0)=1.8604510080712198E-4; still
+12-04 00:59:54.528: I/DecisionTreeEvaluate(6622): Result done: Variance(0)=0.014687272600025043; Variance(0)=0.014687272600025043; Energy Coefficient(2)=11.270773153938535; Variance(0)=0.014687272600025043; Energy Coefficient(2)=11.270773153938535; walk

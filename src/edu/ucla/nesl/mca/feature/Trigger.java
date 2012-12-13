@@ -10,13 +10,13 @@ public class Trigger {
 	private OPType type;
 	private double threshold;
 	private String value;
-	private double duration;
+	private int duration;
 	
 	
-	public double getDuration() {
+	public int getDuration() {
 		return duration;
 	}
-	public void setDuration(double duration) {
+	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 	public OPType getType() {
@@ -52,7 +52,7 @@ public class Trigger {
 	public void setThreshold(double threshold) {
 		this.threshold = threshold;
 	}
-	public Trigger(int feature, String operator, double threshold, double duration) {
+	public Trigger(int feature, String operator, double threshold, int duration) {
 		super();
 		this.feature = feature;
 		for (RealOperator o : RealOperator.values()) {
@@ -67,7 +67,7 @@ public class Trigger {
 		this.type = OPType.REAL;
 	}
 	
-	public Trigger(int feature, String value, double duration) {
+	public Trigger(int feature, String value, int duration) {
 		this.type = OPType.NOMINAL;
 		this.value = value;
 		this.duration = duration;
