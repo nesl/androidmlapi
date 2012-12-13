@@ -152,11 +152,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.json.JSONException;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -165,6 +170,7 @@ import edu.mit.media.funf.IOUtils;
 import edu.mit.media.funf.configured.ConfiguredPipeline;
 import edu.mit.media.funf.configured.FunfConfig;
 import edu.mit.media.funf.probe.Probe;
+import edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe;
 import edu.mit.media.funf.storage.BundleSerializer;
 import edu.ucla.nesl.mca.classifier.ClassifierBuilder;
 import edu.ucla.nesl.mca.classifier.DecisionTree;
@@ -185,6 +191,27 @@ public class MainService extends ConfiguredPipeline {
 	public static int count = 0;
 	public static int windowSize = Integer.MAX_VALUE;
 	private double[] accBufferX, accBufferY, accBufferZ;
+	
+	LocationManager locationManager = null;
+
+	LocationListener locationListener = new LocationListener() {
+		public void onLocationChanged(Location location) {
+			// Called when a new location is found by the network location
+			// provider.
+			double lat = location.getLatitude();
+			double logt = location.getLongitude();
+			double alt = location.getAltitude();
+
+			Log.i("MainService", "GPS!!!!! " + " latitute=" + lat
+					+ " logitute=" + logt + " altitute=" + alt);
+		}
+
+	    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+	    public void onProviderEnabled(String provider) {}
+
+	    public void onProviderDisabled(String provider) {}
+	  };
 	
 	@Override
 	protected void onHandleIntent(Intent intent) {	
@@ -229,6 +256,7 @@ public class MainService extends ConfiguredPipeline {
 								}
 							}
 							triggerMap.put(tFeature, feature);
+							//Log.i("MainService", tFeature.getTriggerFeature() + " " + tFeature.getTriggerRealOperator() + " " + tFeature.getTriggerThreshold());
 							Log.i("MainService", sensorID + " not started");
 							Log.i("MainService", tFeature.getName() + " can trigger " + feature.getName());
 						}
@@ -242,7 +270,7 @@ public class MainService extends ConfiguredPipeline {
 								accBufferX = new double[100];
 								accBufferY = new double[100];
 								accBufferZ = new double[100];
-								//runProbeOnceNow(AccelerometerSensorProbe.class.getName());
+								runProbeOnceNow(AccelerometerSensorProbe.class.getName());
 							}
 							else if (sensorID == SensorProfile.GPS) {
 								
@@ -270,44 +298,94 @@ public class MainService extends ConfiguredPipeline {
 		return null;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void onDataReceived(Bundle data) {
 		//super.onDataReceived(data);
-		//Log.i("MainService", "data received");
+		Log.i("MainService", "data received");
 		//Toast.makeText(this, "data received!", Toast.LENGTH_SHORT).show();
 		float[] dx = data.getFloatArray("X");
 		float[] dy = data.getFloatArray("Y");
 		float[] dz = data.getFloatArray("Z");
-		Log.i("MainService", "Acc data: x=" + dx[0] +" y=" + dy[0] + " z=" + dz[0]);
+		//Log.i("MainService", "Acc data: x=" + dx[0] +" y=" + dy[0] + " z=" + dz[0]);
 		
-//		accBufferX[count] = dx[0];
-//		accBufferY[count] = dy[0];
-//		accBufferZ[count] = dx[0];
-//		count++;
-//		
-//		if (count == windowSize) {	        
-//			/* Start the evaluation of the classifier */
-//			Bundle resData = new Bundle();
-//			resData.putDoubleArray("AccX", accBufferX);
-//			resData.putDoubleArray("AccY", accBufferY);
-//			resData.putDoubleArray("AccZ", accBufferZ);
-//			FeaturePool list = classifier.getInputs();
-//			for (int index : list.getM_index()) {
-//				Feature feature = list.getFeature(index);
-//				if (feature.getSensor() == SensorProfile.ACCELEROMETER) {
-//					feature.setData(resData);
-//				}
-//			}
-//			Object result = classifier.evaluate();			
-//			Intent intent = new Intent(DISPLAY_RESULT);
-//			intent.putExtra("mode", result.toString());
-//	        sendBroadcast(intent);
-//	        
-//			count = 0;
-//			Arrays.fill(accBufferX, 0);
-//			Arrays.fill(accBufferY, 0);
-//			Arrays.fill(accBufferZ, 0);
-//		}
+		for (int i = 0; i < dx.length; i++) {
+			accBufferX[count] = dx[i];
+			accBufferY[count] = dy[i];
+			accBufferZ[count] = dz[i];
+			count++;
+			double var = 0.0;
+			if (count == windowSize) {
+				/* Start the evaluation of the classifier */
+				Bundle resData = new Bundle();
+				resData.putDoubleArray("AccX", accBufferX);
+				resData.putDoubleArray("AccY", accBufferY);
+				resData.putDoubleArray("AccZ", accBufferZ);
+				FeaturePool list = classifier.getInputs();
+				for (int index : list.getM_index()) {
+					Feature feature = list.getFeature(index);
+					if (feature.getSensor() == SensorProfile.ACCELEROMETER) {
+						feature.setData(resData);
+					}
+				}
+				
+				/* See if we need to trigger some sensor */
+				Iterator it = triggerMap.entrySet().iterator();
+			    while (it.hasNext()) {
+			        Map.Entry<Feature, Feature> pairs = (Map.Entry<Feature, Feature>)it.next();
+			        Feature triggee = pairs.getValue();
+			        Feature trigger = pairs.getKey();
+			        Object obj = trigger.evaluate(0);
+			        
+			        if (obj instanceof Double) {
+			        	var = (Double)obj;
+			        }
+			        //Log.i("MainService", "Current trigger value: " + var);
+			        
+			        
+			        if (triggee.getTriggerRealOperator().evaluate(var, triggee.getTriggerThreshold())) {
+			        	if (triggee.getSensor() == SensorProfile.GPS) {
+			        		if (!featureManager.contains(triggee.getSensor())) {
+			        			Log.i("MainService", "Current trigger value: " + var);
+			        			featureManager.add(triggee.getSensor());
+			        			locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+				        		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+			        		}
+			        	}
+			        	else if (triggee.getSensor() == SensorProfile.ACCELEROMETER) { 
+			        		
+			        	}
+			        	else {
+			        		
+			        	}
+			        }
+			        else {
+			        	if (triggee.getSensor() == SensorProfile.GPS) {
+			        		
+			        	}
+			        	else if (triggee.getSensor() == SensorProfile.ACCELEROMETER) { 
+			        		
+			        	}
+			        	else {
+			        		
+			        	}
+			        }
+			        
+//			        Log.i("MainServer", pairs.getKey().getId() + " = " + pairs.getValue().getId());
+			    }
+				
+				Object result = classifier.evaluate();			
+				Intent intent = new Intent(DISPLAY_RESULT);
+				intent.putExtra("mode", result.toString());
+				intent.putExtra("indoor", Double.valueOf(var).toString());
+		        sendBroadcast(intent);
+		        
+				count = 0;
+				Arrays.fill(accBufferX, 0);
+				Arrays.fill(accBufferY, 0);
+				Arrays.fill(accBufferZ, 0);
+			}
+		}
 	}
 	
 	@Override

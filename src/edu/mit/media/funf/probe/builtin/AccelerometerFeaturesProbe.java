@@ -80,6 +80,7 @@ public class AccelerometerFeaturesProbe extends Probe implements SensorEventList
         
         // Allocate frame buffer, assuming a maximum sampling rate
         frameBufferSize = (int)Math.ceil(SENSOR_MAX_RATE/SENSOR_FRAME_DURATION);
+        //frameBufferSize = 1;
         frameBuffer = new double[frameBufferSize][3];
         //writeLogTextLine("Accelerometer maximum frame size (samples): " + frameBufferSize);
         //writeLogTextLine("Accelerometer maximum frame duation (secs): " + SENSOR_FRAME_DURATION);

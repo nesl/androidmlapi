@@ -11,17 +11,11 @@ public class BuiltInFeature {
 		if (id == 1 || id == 2) {
 			return Feature.OPType.REAL;
 		}
+		else if (id == 0) {
+			return Feature.OPType.NOMINAL;
+		}
 		else {
 			return Feature.OPType.NOMINAL;
 		}
 	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

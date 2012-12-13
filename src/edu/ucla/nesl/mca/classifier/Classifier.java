@@ -2,11 +2,17 @@ package edu.ucla.nesl.mca.classifier;
 
 import java.io.IOException;
 
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import android.util.Log;
 import edu.ucla.nesl.mca.feature.BuiltInFeature;
 import edu.ucla.nesl.mca.feature.Feature;
+import edu.ucla.nesl.mca.feature.Feature.OPType;
 import edu.ucla.nesl.mca.feature.FeaturePool;
+import edu.ucla.nesl.mca.feature.Trigger;
 import edu.ucla.nesl.mca.xdr.XDRSerializable;
 
 public abstract class Classifier implements XDRSerializable {
@@ -66,9 +72,37 @@ public abstract class Classifier implements XDRSerializable {
 				else {
 					feature.setResult(false);
 					feature.setSensor(featureObj.getInt("SensorID"));
-					if (featureObj.has("Trigger")) {
-						JSONObject triggerObj = featureObj.getJSONObject("Trigger");
-						feature.setTrigger(triggerObj.getInt("Feature"), triggerObj.getString("Operation"), triggerObj.getDouble("Threshold"));
+					if (featureObj.has("TriggerOn")) {
+						JSONObject triggerObj = featureObj.getJSONObject("TriggerOn");
+						int featureID = triggerObj.getInt("Feature");
+						if (BuiltInFeature.getOPType(featureID) == OPType.REAL) {
+							String operator = triggerObj.getString("Operation");
+							double value = triggerObj.getDouble("Value");
+							double duration = triggerObj.getDouble("Duration");
+							Log.i("Classifier", "Trigger on is " + operator);
+							feature.setTriggerOn(new Trigger(featureID, operator, value, duration));
+						}
+						else if (BuiltInFeature.getOPType(featureID) == OPType.NOMINAL) {
+							String value = triggerObj.getString("Value");
+							double duration = triggerObj.getDouble("Duration");
+							feature.setTriggerOn(new Trigger(featureID, value, duration));
+						}						
+					}
+					if (featureObj.has("TriggerOff")) {
+						JSONObject triggerObj = featureObj.getJSONObject("TriggerOff");
+						int featureID = triggerObj.getInt("Feature");
+						if (BuiltInFeature.getOPType(featureID) == OPType.REAL) {
+							String operator = triggerObj.getString("Operation");
+							double value = triggerObj.getDouble("Value");
+							double duration = triggerObj.getDouble("Duration");
+							Log.i("Classifier", "Trigger off is " + operator);
+							feature.setTriggerOff(new Trigger(featureID, operator, value, duration));
+						}
+						else if (BuiltInFeature.getOPType(featureID) == OPType.NOMINAL) {
+							String value = triggerObj.getString("Value");
+							double duration = triggerObj.getDouble("Duration");
+							feature.setTriggerOff(new Trigger(featureID, value, duration));
+						}	
 					}
 					//System.out.println(feature.id + " " + feature.name + " " + feature.sensor);
 					m_inputs.addFeature(feature);

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.os.Bundle;
 import edu.ucla.nesl.mca.classifier.LogUtil;
-import edu.ucla.nesl.mca.classifier.RealOperator;
 
 public class Feature {
 	public enum OPType {
@@ -21,42 +20,6 @@ public class Feature {
 		}
 	}
 	
-	class Trigger {
-		private int feature;
-		private RealOperator realOp;
-		private double threshold;
-		
-		public int getFeature() {
-			return feature;
-		}
-		public void setSensor(int feature) {
-			this.feature = feature;
-		}
-		public RealOperator getRealOp() {
-			return realOp;
-		}
-		public void setRealOp(RealOperator realOp) {
-			this.realOp = realOp;
-		}
-		public double getThreshold() {
-			return threshold;
-		}
-		public void setThreshold(double threshold) {
-			this.threshold = threshold;
-		}
-		public Trigger(int sensor, String operator, double threshold) {
-			super();
-			this.feature = sensor;
-			for (RealOperator o : RealOperator.values()) {
-                if (o.toString().equals(operator)) {
-                	this.realOp = o;
-                    break;
-                  }
-            }
-			this.threshold = threshold;
-		}
-	}
-
 	private int id;
 	private String name;
 	private int sensor;
@@ -67,18 +30,45 @@ public class Feature {
 	private ArrayList<String> dataSet; // only used if NOMINAL
 	private Bundle data;
 	private int parameter;
-	private Trigger trigger = null;
+	private Trigger triggerOn = null;
+	private Trigger triggerOff = null;
 	
-	public Trigger getTrigger() {
-		return trigger;
+//	public Trigger getTrigger() {
+//		return trigger;
+//	}
+//
+//	public void setTrigger(int feature, String operator, double threshold) {
+//		this.trigger = new Trigger(feature, operator, threshold);
+//	}
+//	
+//	public int getTriggerFeature() {
+//		return this.trigger.feature;
+//	}
+//	
+//	public RealOperator getTriggerRealOperator() {
+//		return this.trigger.realOp;
+//	}
+//	
+//	public double getTriggerThreshold() {
+//		return this.trigger.threshold;
+//	}
+	
+	
+
+	public Trigger getTriggerOn() {
+		return triggerOn;
 	}
 
-	public void setTrigger(int feature, String operator, double threshold) {
-		this.trigger = new Trigger(feature, operator, threshold);
+	public void setTriggerOn(Trigger triggerOn) {
+		this.triggerOn = triggerOn;
 	}
-	
-	public int getTriggerFeature() {
-		return this.trigger.feature;
+
+	public Trigger getTriggerOff() {
+		return triggerOff;
+	}
+
+	public void setTriggerOff(Trigger triggerOff) {
+		this.triggerOff = triggerOff;
 	}
 
 	public Feature() {
@@ -176,7 +166,33 @@ public class Feature {
 //				sum += Math.pow((accData[i] - avg), 2.0);
 //			}
 //			var = sum / dataSize;
-
+			if (!AlgorithmUtil.getOutdoor()) {
+				double accFft[] = new double[5];
+				accFft[0] = AlgorithmUtil.goertzel(accData, 1., dataSize);
+				accFft[1] = AlgorithmUtil.goertzel(accData, 2., dataSize);
+				accFft[2] = AlgorithmUtil.goertzel(accData, 3., dataSize);
+				accFft[3] = AlgorithmUtil.goertzel(accData, 4., dataSize);
+				accFft[4] = AlgorithmUtil.goertzel(accData, 5., dataSize);
+				
+				int newVal = 0;
+				if (accFft[0] + accFft[1] + accFft[2] + accFft[3] + accFft[4] < AlgorithmUtil.INDOOR_THRESHOLD) {
+					newVal = 0;
+				}
+				else {
+					newVal = 1;
+				}
+				if (AlgorithmUtil.ioq.size() == AlgorithmUtil.QUEUE_SIZE){
+					AlgorithmUtil.ioScore -= AlgorithmUtil.ioq.removeLast();
+				}
+				AlgorithmUtil.ioq.addFirst(newVal);
+				AlgorithmUtil.ioScore += newVal;
+				if (AlgorithmUtil.ioScore > AlgorithmUtil.QUEUE_SIZE / 2) {
+					AlgorithmUtil.setOutdoor();
+					AlgorithmUtil.ioq.clear();
+					AlgorithmUtil.ioScore = 0;
+				}
+			}
+			
 			double s = 0.0, a0 = 0.0, v = 0.0;
 			double a[] = new double[10];
 			for (int i = 0; i < dataSize; i++) {
@@ -211,6 +227,15 @@ public class Feature {
 				this.parameter = (int)parameter;
 				this.dataValue = a[(int)parameter];
 				LogUtil.features.add(this);
+				return this.dataValue;
+			}
+			else if (this.name.equals(SensorProfile.INDOOR)) {
+				if (!AlgorithmUtil.outdoors) {
+					this.dataValue = 0.0;
+				}
+				else {
+					this.dataValue = 1.0;
+				}
 				return this.dataValue;
 			}
 		}

@@ -1,6 +1,5 @@
 package edu.ucla.nesl.mca;
 
-import edu.ucla.nesl.mca.R;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +11,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnSharedPreferenceChangeListener {	
     @Override
@@ -52,7 +52,10 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
     		String res = intent.getCharSequenceExtra("mode").toString();
     		TextView mode = (TextView)findViewById(R.id.classifierInfo);
     		mode.setText(res);
-    		Toast.makeText(context, res, Toast.LENGTH_SHORT).show();
+    		String res1 = intent.getCharSequenceExtra("indoor").toString();
+    		TextView indoor = (TextView)findViewById(R.id.TextView02);
+    		indoor.setText(res1);
+    		//Toast.makeText(context, res, Toast.LENGTH_SHORT).show();
     	} 
     }; 
     

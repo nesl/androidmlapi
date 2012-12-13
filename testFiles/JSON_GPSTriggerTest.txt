@@ -24,10 +24,16 @@
         					"Name": "Speed",
         					"WindowSize": 100,
         					"SensorID": 1,
-        					"Trigger": {
+        					"TriggerOn": {
         						"Feature": 3,
-        						"Operation": "<",
-        						"Threshold": 1
+        						"Operation": ">=",
+        						"Value": 1,
+        						"Duration": 0
+        					},
+        					"TriggerOff": {
+        						"Feature": 0,
+        						"Value": "still",
+        						"Duration": 2
         					}
 						},
 						{

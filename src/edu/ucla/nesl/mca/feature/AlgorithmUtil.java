@@ -1,9 +1,29 @@
 package edu.ucla.nesl.mca.feature;
 
+import java.util.LinkedList;
+
 import android.hardware.SensorManager;
 
 public class AlgorithmUtil {
-	public static double goertzel(double [] data, double freq, double sr){
+	public static final int INDOOR_THRESHOLD = 5654;
+	public static final int QUEUE_SIZE = 90;
+	public static boolean outdoors = false;
+    public static LinkedList<Integer> ioq = new LinkedList<Integer>();
+    public static int ioScore = 0;
+    
+    public static synchronized void setIndoor() {
+        outdoors = false;
+    }
+			
+    public static synchronized void setOutdoor() {
+        outdoors = true;
+    }
+    
+    public static synchronized boolean getOutdoor() {
+        return outdoors;
+    }
+
+    public static double goertzel(double [] data, double freq, double sr){
 		double s_prev = 0;
         double s_prev2 = 0;
         double coeff = 2 * Math.cos( (2*Math.PI*freq) / sr);
