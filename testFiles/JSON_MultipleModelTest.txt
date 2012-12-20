@@ -25,13 +25,12 @@
         					"WindowSize": 100,
         					"SensorID": 1,
         					"TriggerOn": {
-        						"Feature": 3,
-        						"Operation": ">=",
-        						"Value": 1,
-        						"Duration": 0
+        						"Feature": -1,
+        						"Value": "walk",
+        						"Duration": 10
         					},
         					"TriggerOff": {
-        						"Feature": 0,
+        						"Feature": -2,
         						"Value": "still",
         						"Duration": 20
         					}
@@ -45,8 +44,14 @@
 						],
 		"ModelList": [
 			{
+				"ID": 1,
                 "Type": "TREE",
                 "Default Result": "still",
+                "TriggerOn": {
+        						"Feature": -2,
+        						"Value": "still",
+        						"Duration": 20
+        		},
                 "Nodes": [
 					{
 	                "ID": 1,
@@ -172,23 +177,29 @@
                 ]
         },
         {
+        		"ID": 2,
                 "Type": "TREE",
                 "Default Result": "run",
+                "TriggerOn": {
+        						"Feature": -1,
+        						"Value": "walk",
+        						"Duration": 10
+        		},
                 "Nodes": [
 					{
 	                "ID": 1,
 	                "FeatureID": 4,
 	                "Operator": "<=",
-	                "Value": 0.1,
+	                "Value": 5,
 	                "ChildNode": [2, 3]
 	                },
 	                {
 	                "ID": 2	,
-	                "Result": "bike"
+	                "Result": "still"
 	                },
 	                {
 	                "ID": 3	,
-	                "Result": "drive"
+	                "Result": "run"
 	                }
 	            ]
         }

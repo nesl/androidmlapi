@@ -42,16 +42,60 @@ public class MainService extends ConfiguredPipeline {
 	private static ArrayList<DecisionTree> classifiers = new ArrayList<DecisionTree>();
 	private static int currentClassifier = 0;
 	private HashSet<Integer> featureManager;
-	private HashMap<Feature, Feature> triggerMapOn;
-	private ArrayList<Feature> resultTriggerOn;
-	private HashMap<Feature, Feature> triggerMapOff;
-	private ArrayList<Feature> resultTriggerOff;
+	private ArrayList<TriggerEntry> featureTriggerOn;
+	private ArrayList<TriggerEntry> featureTriggerOff;
+	private ArrayList<TriggerEntry> resultTriggerOn;
+	private ArrayList<TriggerEntry> resultTriggerOff;
 	public static int count = 0;
 	public static int windowSize = Integer.MAX_VALUE;
 	private double[] accBufferX, accBufferY, accBufferZ;
 	private long [] onTimeCount = new long[20];
 	private long [] offTimeCount = new long[20];
+	//private long [] offTimeCountClassifier = new long[20];
+	private long [] onTimeCountClassifier = new long[20];
 	LocationManager locationManager = null;
+	
+	class TriggerEntry {
+		String type = "";
+		Feature triggerFeature = null;
+		Feature triggeeFeature = null;
+		int triggerClassifier = 0;
+		Classifier triggeeClassifier = null;
+		
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}
+		public Feature getTriggerFeature() {
+			return triggerFeature;
+		}
+		public void setTriggerFeature(Feature triggerFeature) {
+			this.triggerFeature = triggerFeature;
+		}
+		public Feature getTriggeeFeature() {
+			return triggeeFeature;
+		}
+		public void setTriggeeFeature(Feature triggeeFeature) {
+			this.triggeeFeature = triggeeFeature;
+		}
+		public int getTriggerClassifier() {
+			return triggerClassifier;
+		}
+		public void setTriggerClassifier(int triggerClassifier) {
+			this.triggerClassifier = triggerClassifier;
+		}
+		public Classifier getTriggeeClassifier() {
+			return triggeeClassifier;
+		}
+		public void setTriggeeClassifier(Classifier triggeeClassifier) {
+			this.triggeeClassifier = triggeeClassifier;
+		}
+		public TriggerEntry(String _type) {
+			this.type = _type;
+		}
+	}
 
 	LocationListener locationListener = new LocationListener() {
 		public void onLocationChanged(Location location) {
@@ -61,8 +105,7 @@ public class MainService extends ConfiguredPipeline {
 			double logt = location.getLongitude();
 			double alt = location.getAltitude();
 
-			Log.i("MainService", "GPS!!!!! " + " latitute=" + lat
-					+ " logitute=" + logt + " altitute=" + alt);
+			Log.i("MainService", "GPS!!!!! " + " latitute=" + lat + " logitute=" + logt + " altitute=" + alt);
 			Intent intent2 = new Intent(UPDATE_LOCATION);
 			intent2.setAction(UPDATE_LOCATION);
 			intent2.putExtra("lat", lat);
@@ -89,9 +132,11 @@ public class MainService extends ConfiguredPipeline {
 			// runProbeOnceNow(probeName);
 			String fileName = intent.getExtras().getString("JSONFile");
 			featureManager = new HashSet<Integer>();
-			triggerMapOn = new HashMap<Feature, Feature>();
-			resultTriggerOn = new ArrayList<Feature>();
-			resultTriggerOff = new ArrayList<Feature>();
+			featureTriggerOn = new ArrayList<TriggerEntry>();
+			featureTriggerOff = new ArrayList<TriggerEntry>();
+			resultTriggerOn = new ArrayList<TriggerEntry>();
+			resultTriggerOff = new ArrayList<TriggerEntry>();
+			
 			// Get the JSON input file
 			File sdcard = Environment.getExternalStorageDirectory();
 			File file = new File(sdcard, fileName);
@@ -125,6 +170,7 @@ public class MainService extends ConfiguredPipeline {
 						if (feature.getTriggerOn() != null || feature.getTriggerOff() != null) {
 							if (feature.getTriggerOn() != null) {
 								int tOn = feature.getTriggerOn().getFeature();
+								Log.i("MainService", "tOn=" + tOn);
 								if (tOn > 0) {
 									Feature tFeature = null;
 									for (int j : list.getM_index()) {
@@ -132,16 +178,18 @@ public class MainService extends ConfiguredPipeline {
 											tFeature = list.getFeature(j);
 										}
 									}
-									triggerMapOn.put(tFeature, feature);
-									// Log.i("MainService",
-									// tFeature.getTriggerFeature() + " " +
-									// tFeature.getTriggerRealOperator() + " " +
-									// tFeature.getTriggerThreshold());
+									TriggerEntry entry = new TriggerEntry("feature");
+									entry.setTriggerFeature(tFeature);
+									entry.setTriggeeFeature(feature);
+									featureTriggerOn.add(entry);
 									Log.i("MainService", sensorID + " not started");
 									Log.i("MainService", tFeature.getName() + " can trigger " + feature.getName());
 								} 
 								else {
-									resultTriggerOn.add(feature);
+									TriggerEntry entry = new TriggerEntry("feature");
+									entry.setTriggerClassifier(Math.abs(tOn));
+									entry.setTriggeeFeature(feature);
+									resultTriggerOn.add(entry);
 								}
 							} 
 							if (feature.getTriggerOff() != null) {
@@ -153,11 +201,17 @@ public class MainService extends ConfiguredPipeline {
 											tFeature = list.getFeature(j);
 										}
 									}
-									triggerMapOff.put(tFeature, feature);
+									TriggerEntry entry = new TriggerEntry("feature");
+									entry.setTriggerFeature(tFeature);
+									entry.setTriggeeFeature(feature);
+									featureTriggerOff.add(entry);
 									Log.i("MainService", tFeature.getName() + " can trigger stopping " + feature.getName());
 								} 
 								else {
-									resultTriggerOff.add(feature);
+									TriggerEntry entry = new TriggerEntry("feature");
+									entry.setTriggerClassifier(Math.abs(tOn));
+									entry.setTriggeeFeature(feature);
+									resultTriggerOff.add(entry);
 								}
 							} 
 						}
@@ -180,10 +234,55 @@ public class MainService extends ConfiguredPipeline {
 
 							}
 						}
-
 					}
 				}
 				Log.i("MainService", "windowsize=" + windowSize);
+				
+				for (Classifier cl:classifiers) {
+					if (cl.getTriggerOn() != null) {
+						int tOn = cl.getTriggerOn().getFeature();
+						Log.i("MainService", "classifier trigger on ton=" + tOn);
+						if (tOn > 0) {
+							Feature tFeature = null;
+							for (int j : list.getM_index()) {
+								if (list.getFeature(j).getId() == tOn) {
+									tFeature = list.getFeature(j);
+								}
+							}
+							TriggerEntry entry = new TriggerEntry("classifier");
+							entry.setTriggerFeature(tFeature);
+							entry.setTriggeeClassifier(cl);
+							featureTriggerOn.add(entry);
+						}
+						else {
+							TriggerEntry entry = new TriggerEntry("classifier");
+							entry.setTriggerClassifier(Math.abs(tOn));
+							entry.setTriggeeClassifier(cl);
+							resultTriggerOn.add(entry);
+						}
+					}
+					if (cl.getTriggerOff() != null) {
+						int tOn = cl.getTriggerOff().getFeature();
+						if (tOn > 0) {
+							Feature tFeature = null;
+							for (int j : list.getM_index()) {
+								if (list.getFeature(j).getId() == tOn) {
+									tFeature = list.getFeature(j);
+								}
+							}
+							TriggerEntry entry = new TriggerEntry("classifier");
+							entry.setTriggerFeature(tFeature);
+							entry.setTriggeeClassifier(cl);
+							featureTriggerOff.add(entry);
+						}
+						else {
+							TriggerEntry entry = new TriggerEntry("classifier");
+							entry.setTriggerClassifier(Math.abs(tOn));
+							entry.setTriggeeClassifier(cl);
+							resultTriggerOff.add(entry);
+						}
+					}
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -198,7 +297,6 @@ public class MainService extends ConfiguredPipeline {
 		return null;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void onDataReceived(Bundle data) {
 		// super.onDataReceived(data);
@@ -238,16 +336,15 @@ public class MainService extends ConfiguredPipeline {
 				}
 
 				/* See if we need to trigger some sensor */
-				Iterator it = triggerMapOn.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Feature, Feature> pairs = (Map.Entry<Feature, Feature>) it.next();
-					Feature triggee = pairs.getValue();
-					Feature trigger = pairs.getKey();
+				
+				for (TriggerEntry entry:featureTriggerOn) {
+					Feature triggee = entry.getTriggeeFeature();
+					Feature trigger = entry.getTriggerFeature();
 					Object obj = trigger.evaluate(0);
-
 					if (obj instanceof Double) {
 						var = (Double) obj;
 					}
+					
 					if(triggee.getTriggerOn() != null) {
 						// Log.i("MainService", "Current trigger value: " + var);
 						if(triggee.getTriggerOn().getType() == OPType.REAL) {
@@ -288,7 +385,6 @@ public class MainService extends ConfiguredPipeline {
 						else if(triggee.getTriggerOn().getType() == OPType.NOMINAL) {
 							
 						}
-						
 					}
 					/* Trigger off part, still need to rewrite */
 //					if (triggee.getTriggerOff() != null) {
@@ -318,78 +414,140 @@ public class MainService extends ConfiguredPipeline {
 //								
 //							}
 //						}
-//					}
+//					}					
+			}
+				
 					
-				}
-
+				Log.i("MainService", "To log: current classifier=" + currentClassifier);
 				Object result = classifiers.get(currentClassifier).evaluate();
 				
 				/* If the result can trigger to start/stop some sensors */
-				for (Feature triggee:resultTriggerOn) {
-					triggee.getId();
-				}
-				for (Feature triggee:resultTriggerOff) {
-					if(triggee.getTriggerOff() != null) {
-						if(triggee.getTriggerOff().getType() == OPType.REAL) {
-							if (triggee.getTriggerOff().getRealOp().evaluate(var, triggee.getTriggerOff().getThreshold())) {
-								if (triggee.getTriggerOff().getDuration() == 0.0 || offTimeCount[triggee.getId()] == triggee.getTriggerOff().getDuration()) {
-									if (featureManager.contains(triggee.getSensor())) {
-										featureManager.remove(triggee.getSensor());
-										/* Does it satisfy the duration requirement ?? */
-										onTimeCount[triggee.getId()] = 0;
-										if (triggee.getSensor() == SensorProfile.GPS) {
-											locationManager.removeUpdates(locationListener);
-											AlgorithmUtil.setIndoor();
-											Log.i("MainService", "Set indoor to be true");
-										} 
-										else if (triggee.getSensor() == SensorProfile.ACCELEROMETER) {
-
-										} 
-										else {
-
+				for (TriggerEntry entry:resultTriggerOn) {
+					Log.i("MainService", entry.getTriggerClassifier() + " " + currentClassifier);
+					if (entry.getType().equals("classifier") && entry.getTriggerClassifier() == (currentClassifier + 1)) {
+						Classifier triggee = entry.getTriggeeClassifier();
+						if(triggee.getTriggerOn() != null) {
+							if(triggee.getTriggerOn().getType() == OPType.NOMINAL) {
+								if(triggee.getTriggerOn().getValue().equals(result.toString())) {
+									if (triggee.getTriggerOn().getDuration() == 0.0 || onTimeCountClassifier[triggee.getId()] == triggee.getTriggerOn().getDuration()) {
+										if (currentClassifier != (triggee.getId() - 1)) {
+											currentClassifier = (triggee.getId() - 1);
+											onTimeCountClassifier[triggee.getId()] = 0;
 										}
+									}
+									else {
+										onTimeCountClassifier[triggee.getId()]++;
+										Log.i("MainService", "current count " + result.toString() + " for off" + onTimeCountClassifier[triggee.getId()]);
 									}
 								}
 								else {
-									offTimeCount[triggee.getId()]++;
+									onTimeCountClassifier[triggee.getId()] = 0;
 								}
-							}
-							else {
-								offTimeCount[triggee.getId()] = 0;
 							}
 						}
-						else if(triggee.getTriggerOff().getType() == OPType.NOMINAL) {
-							if(triggee.getTriggerOff().getValue().equals(result.toString())) {
-								if (triggee.getTriggerOff().getDuration() == 0.0 || offTimeCount[triggee.getId()] == triggee.getTriggerOff().getDuration()) {
-									if (featureManager.contains(triggee.getSensor())) {
-										featureManager.remove(triggee.getSensor());
+					}
+					if (entry.getType().equals("feature")) {
+						Feature triggee = entry.getTriggeeFeature();
+						if(triggee.getTriggerOn().getType() == OPType.NOMINAL) {
+							if(triggee.getTriggerOn().getValue().equals(result.toString())) {
+								if (triggee.getTriggerOn().getDuration() == 0.0 || onTimeCount[triggee.getId()] == triggee.getTriggerOn().getDuration()) {
+									if (!featureManager.contains(triggee.getSensor())) {
+										featureManager.add(triggee.getSensor());
 										/* Does it satisfy the duration requirement ?? */
 										onTimeCount[triggee.getId()] = 0;
 										if (triggee.getSensor() == SensorProfile.GPS) {
-											locationManager.removeUpdates(locationListener);
-											AlgorithmUtil.setIndoor();
-											Log.i("MainService", "Set indoor to be true");
-											Intent intent3 = new Intent(UPDATE_LOCATION);
-											intent3.setAction(UPDATE_LOCATION);
-											intent3.putExtra("lat", "None");
-											intent3.putExtra("lot", "None");
-											sendBroadcast(intent3);
+											AlgorithmUtil.setOutdoor();
+											Log.i("MainService", "Current trigger value: " + var);
+											locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+											locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+											Log.i("MainService", "Start GPS");
+											Intent intent4 = new Intent(UPDATE_LOCATION);
+											intent4.setAction(UPDATE_LOCATION);
+											intent4.putExtra("lat", "No Signal");
+											intent4.putExtra("lot", "No Signal");
+											sendBroadcast(intent4);
 										} 
-										else if (triggee.getSensor() == SensorProfile.ACCELEROMETER) {
-
-										} 
-										else {
-
-										}
 									}
 								}
 								else {
-									offTimeCount[triggee.getId()]++;
-									Log.i("MainService", "current count for off" + offTimeCount[triggee.getId()]);
+									onTimeCount[triggee.getId()]++;
+									Log.i("MainService", "current " + result.toString() + " count for off" + onTimeCount[triggee.getId()]);
 								}
 							}
 							else {
-								offTimeCount[triggee.getId()] = 0;
+								onTimeCount[triggee.getId()] = 0;
+							}
+						}
+					}
+				}
+				for (TriggerEntry entry:resultTriggerOff) {
+					if (entry.getType().equals("classifier") && entry.getTriggerClassifier() == currentClassifier) {
+						
+					}
+					if (entry.getType().equals("feature")) {
+						Feature triggee = entry.getTriggeeFeature();
+						if(triggee.getTriggerOff() != null) {
+							if(triggee.getTriggerOff().getType() == OPType.REAL) {
+								if (triggee.getTriggerOff().getRealOp().evaluate(var, triggee.getTriggerOff().getThreshold())) {
+									if (triggee.getTriggerOff().getDuration() == 0.0 || offTimeCount[triggee.getId()] == triggee.getTriggerOff().getDuration()) {
+										if (featureManager.contains(triggee.getSensor())) {
+											featureManager.remove(triggee.getSensor());
+											/* Does it satisfy the duration requirement ?? */
+											onTimeCount[triggee.getId()] = 0;
+											if (triggee.getSensor() == SensorProfile.GPS) {
+												locationManager.removeUpdates(locationListener);
+												AlgorithmUtil.setIndoor();
+												Log.i("MainService", "Set indoor to be true");
+											} 
+											else if (triggee.getSensor() == SensorProfile.ACCELEROMETER) {
+
+											} 
+											else {
+
+											}
+										}
+									}
+									else {
+										offTimeCount[triggee.getId()]++;
+									}
+								}
+								else {
+									offTimeCount[triggee.getId()] = 0;
+								}
+							}
+							else if(triggee.getTriggerOff().getType() == OPType.NOMINAL) {
+								if(triggee.getTriggerOff().getValue().equals(result.toString())) {
+									if (triggee.getTriggerOff().getDuration() == 0.0 || offTimeCount[triggee.getId()] == triggee.getTriggerOff().getDuration()) {
+										if (featureManager.contains(triggee.getSensor())) {
+											featureManager.remove(triggee.getSensor());
+											/* Does it satisfy the duration requirement ?? */
+											onTimeCount[triggee.getId()] = 0;
+											if (triggee.getSensor() == SensorProfile.GPS) {
+												locationManager.removeUpdates(locationListener);
+												AlgorithmUtil.setIndoor();
+												Log.i("MainService", "Set indoor to be true");
+												Intent intent3 = new Intent(UPDATE_LOCATION);
+												intent3.setAction(UPDATE_LOCATION);
+												intent3.putExtra("lat", "None");
+												intent3.putExtra("lot", "None");
+												sendBroadcast(intent3);
+											} 
+											else if (triggee.getSensor() == SensorProfile.ACCELEROMETER) {
+
+											} 
+											else {
+
+											}
+										}
+									}
+									else {
+										offTimeCount[triggee.getId()]++;
+										Log.i("MainService", "current " + result.toString() + " count for off" + offTimeCount[triggee.getId()]);
+									}
+								}
+								else {
+									offTimeCount[triggee.getId()] = 0;
+								}
 							}
 						}
 					}
@@ -399,7 +557,7 @@ public class MainService extends ConfiguredPipeline {
 				Intent intent = new Intent(DISPLAY_RESULT);
 				intent.setAction(DISPLAY_RESULT);
 				intent.putExtra("mode", result.toString());
-				intent.putExtra("indoor", Double.valueOf(var).toString());
+				intent.putExtra("indoor", AlgorithmUtil.getOutdoor() ? "Outdoor" : "Indoor");
 				if (featureManager.contains(SensorProfile.GPS)) {
 					intent.putExtra("gps", "GPS On");
 				}

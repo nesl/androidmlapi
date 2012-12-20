@@ -122,7 +122,7 @@
         android:layout_above="@+id/TextView05"
         android:layout_alignLeft="@+id/button1"
         android:layout_alignRight="@+id/TextView03"
-        android:text="@string/default_value" />
+        android:text="@string/off_value" />
 
     <TextView
         android:id="@+id/TextView06"
@@ -131,7 +131,7 @@
         android:layout_alignLeft="@+id/textView2"
         android:layout_alignRight="@+id/textView2"
         android:layout_below="@+id/textView2"
-        android:text="@string/default_value" />
+        android:text="@string/off_value" />
 
     <TextView
         android:id="@+id/TextView10"

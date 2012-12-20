@@ -8,4 +8,5 @@ public class SensorProfile {
 	public static final String VARIANCE = "Variance";
 	public static final String ENERGYCOEFFICIENT = "Energy Coefficient";
 	public static final String INDOOR = "Indoor";
+	public static final String SPEED = "Speed";
 }

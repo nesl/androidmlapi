@@ -62,7 +62,7 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
         		mode.setText(res);
         		String res1 = intent.getCharSequenceExtra("indoor").toString();
         		TextView indoor = (TextView)findViewById(R.id.TextView03);
-        		if (res1.equals("1.0")) {
+        		if (res1.equals("Outdoor")) {
         			indoor.setText("Outdoor");
         		}
         		else {

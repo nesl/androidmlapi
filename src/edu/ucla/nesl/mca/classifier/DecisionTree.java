@@ -360,6 +360,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
 	public Object evaluate() {
 		// TODO Auto-generated method stub
 		TreeNode cur = m_root;
+		Log.i("DecisionTree", "root name " + cur.m_feature.getName());
 		Log.i("DecisionTree", "root value = " + cur.m_feature.evaluate(cur.m_parameter));
 		while (true) {
 			// do the evaluation in decision tree

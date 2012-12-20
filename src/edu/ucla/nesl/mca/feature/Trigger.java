@@ -68,6 +68,7 @@ public class Trigger {
 	}
 	
 	public Trigger(int feature, String value, int duration) {
+		this.feature = feature;
 		this.type = OPType.NOMINAL;
 		this.value = value;
 		this.duration = duration;

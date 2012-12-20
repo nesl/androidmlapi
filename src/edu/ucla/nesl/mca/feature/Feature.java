@@ -3,6 +3,7 @@ package edu.ucla.nesl.mca.feature;
 import java.util.ArrayList;
 
 import android.os.Bundle;
+import android.util.Log;
 import edu.ucla.nesl.mca.classifier.LogUtil;
 
 public class Feature {
@@ -147,7 +148,11 @@ public class Feature {
 	public Object evaluate(double parameter) {
 		// compute the current value using parameter
 		if (this.sensor == SensorProfile.GPS) {
-
+			if (this.name.equals(SensorProfile.SPEED)) {
+				this.dataValue = Math.random() * 20.0;
+				Log.i("Feature", "current speed=" + dataValue);
+				return this.dataValue;
+			}
 		} 
 		else if (this.sensor == SensorProfile.ACCELEROMETER) {
 			double[] accData = AlgorithmUtil.magnititute(
@@ -238,6 +243,7 @@ public class Feature {
 				}
 				return this.dataValue;
 			}
+			
 		}
 		return Double.MIN_VALUE;
 	}

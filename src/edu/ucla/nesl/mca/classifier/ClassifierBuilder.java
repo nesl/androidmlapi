@@ -115,12 +115,51 @@ public class ClassifierBuilder {
 			for (int i = 0; i < modelList.length(); i++) {
 				JSONObject curModel = modelList.getJSONObject(i);
 				String type = curModel.getString("Type");
+				int id = curModel.getInt("ID");
 				if (type.equals("TREE")) {
 					Classifier tree = new DecisionTree();
+					tree.setId(id);
 					tree.setType("TREE");
 					tree.setM_inputs(m_inputs);
 					tree.setM_output(m_output);
 					tree.getModel(curModel);
+					
+					if (curModel.has("TriggerOn")) {
+						JSONObject triggerObj = curModel.getJSONObject("TriggerOn");
+						int featureID = triggerObj.getInt("Feature");
+						Log.i("Classifier", "trigger on for classifier, featureID=" + featureID);
+						//Log.i("Classifier", "Trigger on found id" + featureID);
+						Log.i("Classifier", "trigger type " + BuiltInFeature.getOPType(featureID) + " real type " + OPType.REAL);
+						if (BuiltInFeature.getOPType(featureID) == OPType.REAL) {
+							String operator = triggerObj.getString("Operation");
+							double value = triggerObj.getDouble("Value");
+							int duration = triggerObj.getInt("Duration");
+							//Log.i("Classifier", "Trigger on is " + operator);
+							tree.setTriggerOn(new Trigger(featureID, operator, value, duration));
+						} 
+						else if (BuiltInFeature.getOPType(featureID) == OPType.NOMINAL) {
+							String value = triggerObj.getString("Value");
+							int duration = triggerObj.getInt("Duration");
+							tree.setTriggerOn(new Trigger(featureID, value,	duration));
+						}
+					}
+					if (curModel.has("TriggerOff")) {
+						JSONObject triggerObj = curModel.getJSONObject("TriggerOff");
+						int featureID = triggerObj.getInt("Feature");
+						Log.i("Classifier", "Trigger off found id" + featureID);
+						if (BuiltInFeature.getOPType(featureID) == OPType.REAL) {
+							String operator = triggerObj.getString("Operation");
+							double value = triggerObj.getDouble("Value");
+							int duration = triggerObj.getInt("Duration");
+							//Log.i("Classifier", "Trigger off is " + operator);
+							tree.setTriggerOff(new Trigger(featureID,
+									operator, value, duration));
+						} else if (BuiltInFeature.getOPType(featureID) == OPType.NOMINAL) {
+							String value = triggerObj.getString("Value");
+							int duration = triggerObj.getInt("Duration");
+							tree.setTriggerOff(new Trigger(featureID, value, duration));
+						}
+					}
 					result.add(tree);
 				}
 			}

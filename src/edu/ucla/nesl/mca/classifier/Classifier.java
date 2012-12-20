@@ -1,17 +1,47 @@
 package edu.ucla.nesl.mca.classifier;
 
-import org.json.*;
-import edu.ucla.nesl.mca.feature.FeaturePool;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import edu.ucla.nesl.mca.feature.Feature;
+import edu.ucla.nesl.mca.feature.FeaturePool;
+import edu.ucla.nesl.mca.feature.Trigger;
 import edu.ucla.nesl.mca.xdr.XDRSerializable;
 
 public abstract class Classifier implements XDRSerializable {
 	// Currently only support multiple in, single out
+	protected int id = 0;
 	protected String name = null;
 	protected String type = null;
 	protected FeaturePool m_inputs = null;
 	protected Feature m_output = null;
 	protected String json = null;
+	protected Trigger triggerOn;
+	protected Trigger triggerOff;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Trigger getTriggerOn() {
+		return triggerOn;
+	}
+
+	public void setTriggerOn(Trigger triggerOn) {
+		this.triggerOn = triggerOn;
+	}
+
+	public Trigger getTriggerOff() {
+		return triggerOff;
+	}
+
+	public void setTriggerOff(Trigger triggerOff) {
+		this.triggerOff = triggerOff;
+	}
 
 	public String getJson() {
 		return json;
