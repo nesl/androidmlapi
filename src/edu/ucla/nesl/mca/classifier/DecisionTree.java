@@ -254,6 +254,7 @@ public class DecisionTree extends Classifier implements XDRSerializable {
     protected String defaultResult;
     
     public DecisionTree() {
+    	// Nothing to do here
     }
 
     public TreeNode getM_root() {

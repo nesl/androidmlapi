@@ -8,11 +8,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnSharedPreferenceChangeListener {	
     @Override
@@ -30,9 +32,10 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
 //				Intent intent = new Intent(context, MainService.class);
 //				intent.putExtra("JSONFile", "mlapi/JSON_IndoorTest.txt");
 //				startService(intent);
+				Toast.makeText(context, "Start to infer!", Toast.LENGTH_SHORT).show();
 				Intent runOnceIntent = new Intent(context, MainService.class);
 				runOnceIntent.setAction(MainService.START_CLASSIFICATION);
-				runOnceIntent.putExtra("JSONFile", "mlapi/JSON_GPSTriggerTest.txt");
+				runOnceIntent.putExtra("JSONFile", "mlapi/JSON_MultipleModelTest.txt");
 				//runOnceIntent.putExtra(MainService.RUN_ONCE_PROBE_NAME, AccelerometerSensorProbe.class.getName());
 				startService(runOnceIntent);
 			}        	
@@ -82,12 +85,23 @@ public class MainActivity extends Activity implements OnSharedPreferenceChangeLi
     			textZ.setText(strZ);
     		}
     		else if (intent.getAction().equals(MainService.UPDATE_LOCATION)) {
-    			String strLa = Double.valueOf(intent.getDoubleExtra("lat", 0.0)).toString();
-    			String strLo = Double.valueOf(intent.getDoubleExtra("lot", 0.0)).toString();
     			TextView textLa = (TextView)findViewById(R.id.textView2);
     			TextView textLo = (TextView)findViewById(R.id.TextView06);
-    			textLa.setText(strLa);
-    			textLo.setText(strLo);
+    			Log.i("MainActivity", intent.getStringExtra("lat"));
+    			if (intent.getStringExtra("lat").equals("None")) {
+    				textLa.setText("Off");
+        			textLo.setText("Off");
+    			}
+    			else if (intent.getStringExtra("lat").equals("No Signal")) {
+    				textLa.setText("No Signal");
+        			textLo.setText("No Signal");
+    			}
+    			else {
+    				String strLa = Double.valueOf(intent.getDoubleExtra("lat", 0.0)).toString();
+        			String strLo = Double.valueOf(intent.getDoubleExtra("lot", 0.0)).toString();
+    				textLa.setText(strLa);
+        			textLo.setText(strLo);
+    			}
     		}
     	} 
     }; 
