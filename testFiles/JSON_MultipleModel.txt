@@ -1,0 +1,214 @@
+{
+        "Name": "Determine Transportation Model Using Mobile Phone",
+		"Feature List" : [
+						{
+        					"ID": 1,
+        					"Name": "Variance",
+        					"WindowSize": 100,
+        					"SensorID": 2
+						},
+						{
+        					"ID": 2,
+        					"Name": "Energy Coefficient",
+        					"WindowSize": 100,
+        					"SensorID": 2        
+						},
+						{
+        					"ID": 3,
+        					"Name": "Location",
+        					"WindowSize": 1,
+        					"SensorID": 1        
+						},
+						{
+        					"ID": 4,
+        					"Name": "Speed",
+        					"WindowSize": 100,
+        					"SensorID": 1,
+						}
+						],
+		"ModelList": [
+			{
+				"ID": 1,
+                "Type": "TREE",
+                "Result": ["still", "walk", "run"],
+                "Default Result": "still",
+                "Nodes": [
+					{
+	                "ID": 1,
+	                "FeatureID": 1,
+	                "Operator": "<=",
+	                "Value": 0.0047,
+	                "ChildNode": [2, 3]
+	                },
+					{				
+	                "ID": 2,
+	                "FeatureID": 1,
+	                "Operator": "<=",
+	                "Value": 0.0016,
+	                "ChildNode": [4, 5]
+	                },
+					{
+	                "ID": 3,
+	                "FeatureID": 2,
+	                "Parameter": 3,
+	                "Operator": "<=",
+	                "Value": 60.3539,
+	                "ChildNode": [6, 7]
+	                },
+					{
+	                "ID": 4,
+	                "Result": "still"
+	                },
+					{
+	                "ID": 5,
+	                "FeatureID": 2,
+	                "Parameter": 5,
+	                "Operator": "<=",
+	                "Value": 0.1532,
+	                "ChildNode": [8, 9]
+	                },
+					{
+	                "ID": 6,
+	                "FeatureID": 1,
+	                "Operator": "<=",
+	                "Value": 0.0085,
+	                "ChildNode": [10, 11]
+					},
+					{
+	                "ID": 7,
+					"Result": "run"                
+	                },
+					{
+	                "ID": 8,
+	                "FeatureID": 2,
+	                "Parameter": 1,
+	                "Operator": "<=",
+	                "Value": 0.5045,
+	                "ChildNode": [12, 13]
+	                },
+					{
+	                "ID": 9,
+	                "Result": "still"
+	                },
+					{
+	                "ID": 10,
+	                "FeatureID": 2,
+	                "Parameter": 8,
+	                "Operator": "<=",
+	                "Value": 0.0506,
+	                "ChildNode": [14, 15]
+	                 },
+					{
+	                "ID": 11,
+	                "FeatureID": 2,
+	                "Parameter": 2,
+	                "Operator": "<=",
+	                "Value": 2.7725,
+	                "ChildNode": [16, 17]
+	                },
+					{
+	                "ID": 12,
+	                "Result": "still"
+	                },
+					{			
+	                "ID": 13,
+	                "Result": "walk"
+	                },
+					{
+	                "ID": 14,
+	                "Result": "walk"
+	                },
+					{
+	                "ID": 15,
+	                "FeatureID": 2,
+	                "Parameter": 2,
+	                "Operator": "<=",
+	                "Value": 2.8607,
+	                "ChildNode": [18, 19]
+	                },
+					{
+	                "ID": 16,
+	                "FeatureID": 2,
+	                "Parameter": 1,
+	                "Operator": "<=",
+	                "Value": 13.0396,
+	                "ChildNode": [20, 21]
+	                },
+					{
+	                "ID": 17,
+	                "Result": "walk"
+	                 },
+					{
+	                "ID": 18,
+	                "Result": "still"
+	                },
+					{
+	                "ID": 19,
+	                "Result": "walk"
+	                },
+					{
+	                "ID": 20,
+	                "Result": "walk"
+	                },
+					{
+	                "ID": 21,
+	                "Result": "still"
+	                }
+                ]
+        },
+        {
+        		"ID": 2,
+                "Type": "TREE",
+                "Result": ["Home", "Work", "Public"],
+                "Default Result": "Home",
+                "TimeoutSleep": {
+        			"Time": 10,
+        			"Default": "Home"
+    			},
+    			"TriggerActive": { 
+        			"Condition": [{
+            			"Classifier": 3,
+            			"Value": "Outdoor"
+        			},
+        			{
+            			"Classifier": 1,
+            			"Value": "Walk"        
+        			}],
+        			"Default": "Home"
+    			}
+    			"TriggerSleep": {
+        			"Condition": [{
+            			"Classifier": 3,
+            			"Value": "Indoor"
+        			}],
+        			"Default": "Home"
+    			}   
+                "Nodes": [
+					{
+	                "ID": 1,
+	                "Comment": "TBD",
+	                "ChildNode": [2, 3, 4]
+	                },
+	                {
+	                	"ID": 2	,
+	                	"Result": "Home"
+	                },
+	                {
+	                	"ID": 3	,
+	                	"Result": "Work"
+	                },
+	                {
+	                	"ID": 4,
+	                	"Result": "Public"
+	                }
+	            ]
+        },
+        {
+        	"ID": 3,
+            "Type": "TREE",
+            "Result": ["Indoor", "Outdoor"],
+            "Default Result": "Indoor",
+            "Nodes": ["TBD"]
+        }
+        ]
+}
